@@ -1,7 +1,5 @@
-# GitHub Personal Access Token
-# Store your token in ~/.zshrc.local (not tracked in git)
-# export GITHUB_TOKEN="your_token_here"
-# export GH_TOKEN="your_token_here"
+# Local configuration (not tracked in git)
+# You can store local environment variables in ~/.zshrc.local
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
 # Git configuration
