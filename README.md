@@ -27,6 +27,7 @@ cd ~/dotfiles
 - **nvim**: Neovim configuration with LazyVim
 - **ghostty**: Ghostty terminal configuration
 - **aerospace**: AeroSpace tiling window manager configuration
+- **starship**: Cross-shell prompt with Git integration and customization
 
 ## Manual Stowing
 
@@ -39,6 +40,7 @@ stow git
 stow nvim
 stow ghostty
 stow aerospace
+stow starship
 ```
 
 To unstow (remove symlinks):
@@ -57,6 +59,7 @@ The install script will install these via Homebrew:
 - fd
 - fzf
 - lazygit
+- starship
 - ghostty
 - aerospace
 - JetBrains Mono Nerd Font

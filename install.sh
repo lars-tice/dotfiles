@@ -20,6 +20,9 @@ brew install git gh neovim stow
 # Development tools
 brew install ripgrep fd fzf lazygit
 
+# Shell enhancements
+brew install starship
+
 # Terminal and window manager
 brew install --cask ghostty
 brew install --cask nikitabobko/tap/aerospace
@@ -46,6 +49,7 @@ stow git
 stow nvim
 stow ghostty
 stow aerospace
+stow starship
 
 echo "✅ Installation complete!"
 echo ""

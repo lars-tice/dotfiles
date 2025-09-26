@@ -13,4 +13,9 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # Neovim alias
 alias vim="nvim"
 alias vi="nvim"
+
+# FZF integration
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Starship prompt
+eval "$(starship init zsh)"
