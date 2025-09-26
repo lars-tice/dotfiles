@@ -1,0 +1,13 @@
+# Local configuration files
+.zshrc.local
+*.local
+
+# macOS
+.DS_Store
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

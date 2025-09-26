@@ -1,0 +1,37 @@
+# Ghostty Configuration
+
+# Opacity - 0.85 for slight transparency
+background-opacity = 0.85
+
+# Theme - Tokyo Night
+theme = TokyoNight
+
+# Font Configuration
+# Using JetBrains Mono Nerd Font for icons and glyphs
+font-family = JetBrainsMonoNerdFontMono-Regular
+font-size = 14
+
+# Tab Configuration
+# Show tab bar even with single tab
+macos-titlebar-style = tabs
+
+# Additional recommended settings
+cursor-style = block
+cursor-style-blink = true
+
+# Window padding for better aesthetics
+window-padding-x = 8
+window-padding-y = 8
+
+# Enable font ligatures if JetBrains Mono supports them
+font-feature = liga
+font-feature = calt
+
+# Scrollback
+scrollback-limit = 10000
+
+# Copy on select
+copy-on-select = true
+
+# macOS specific settings
+macos-option-as-alt = true
