@@ -78,8 +78,10 @@ alt-shift-r = 'reload-config'
 # Layout changes
 alt-t = 'layout tiles horizontal vertical'
 
-# Service mode for resizing (enter with alt-r)
-alt-r = 'mode resize'
+# Resize mode
+# Note: alt-r may conflict with some apps, so we use alt-shift-e as primary
+alt-shift-e = 'mode resize'
+# alt-r = 'mode resize'  # Uncomment if no conflicts
 
 [mode.resize.binding]
 h = 'resize width -50'
