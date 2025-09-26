@@ -99,3 +99,8 @@ run = 'layout floating'
 if.app-id = 'com.apple.finder'
 if.window-title-regex-substring = 'Copy|Move'
 run = 'layout floating'
+
+# Keep Ghostty in its current state when creating tabs
+[[on-window-detected]]
+if.app-id = 'com.mitchellh.ghostty'
+run = []  # Don't auto-tile new Ghostty windows
