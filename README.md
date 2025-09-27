@@ -46,6 +46,8 @@ Note: The install script will skip git since it's already installed.
 - **git-delta**: Better git diffs with syntax highlighting
 - **uv**: Fast Python package manager by Astral
 - **glow**: Beautiful markdown reader for terminal
+- **gnupg**: GNU Privacy Guard for encryption and signing
+- **git-crypt**: Transparent file encryption in git repositories
 
 ## Manual Stowing
 
@@ -76,6 +78,10 @@ The install script will install these via Homebrew:
 - gh (GitHub CLI)
 - neovim
 - stow
+
+### Security Tools
+- gnupg (GPG for encryption and signing)
+- git-crypt (Transparent file encryption in git)
 
 ### Development Tools
 - ripgrep

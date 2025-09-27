@@ -17,6 +17,9 @@ echo "📦 Installing dependencies via Homebrew..."
 # Core tools
 brew install git gh neovim stow
 
+# Security tools
+brew install gnupg git-crypt
+
 # Development tools
 brew install ripgrep fd fzf lazygit git-delta uv glow
 
