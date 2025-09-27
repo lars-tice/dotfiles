@@ -18,7 +18,7 @@ echo "📦 Installing dependencies via Homebrew..."
 brew install git gh neovim stow
 
 # Development tools
-brew install ripgrep fd fzf lazygit git-delta
+brew install ripgrep fd fzf lazygit git-delta uv
 
 # Shell enhancements
 brew install starship bat tmux atuin eza zoxide
