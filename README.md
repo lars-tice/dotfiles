@@ -9,16 +9,23 @@ My personal dotfiles for macOS, managed with GNU Stow.
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-2. Clone this repository:
+2. Install git (required to clone this repository):
+```bash
+brew install git
+```
+
+3. Clone this repository:
 ```bash
 git clone https://github.com/lars-tice/dotfiles.git ~/dotfiles
 ```
 
-3. Run the installation script:
+4. Run the installation script:
 ```bash
 cd ~/dotfiles
 ./install.sh
 ```
+
+Note: The install script will skip git since it's already installed.
 
 ## What's Included
 
