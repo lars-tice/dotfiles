@@ -42,8 +42,26 @@ alias lsa='eza -la --icons'     # Detailed list with hidden files
 alias lt='eza --tree --icons'   # Tree view
 
 # Zoxide for smarter directory navigation
-eval "$(zoxide init zsh)"
-alias z='zoxide'
+# Note: eval "$(zoxide init zsh)" has issues in some environments
+# Using direct implementation instead
+unalias z 2>/dev/null || true
+unalias zi 2>/dev/null || true
+
+z() {
+    if [ $# -eq 0 ]; then
+        cd ~
+    elif [ "$1" = "-" ]; then
+        cd -
+    elif [ -d "$1" ]; then
+        cd "$1"
+    else
+        local result
+        result="$(zoxide query -- "$@")" && cd "$result"
+    fi
+}
+zi() {
+    result="$(zoxide query -i -- "$@")" && cd "$result"
+}
 
 # Auto-start tmux when opening terminal
 if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$VSCODE_INJECTION" ] && [[ $- == *i* ]]; then
