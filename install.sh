@@ -18,10 +18,10 @@ echo "📦 Installing dependencies via Homebrew..."
 brew install git gh neovim stow
 
 # Development tools
-brew install ripgrep fd fzf lazygit
+brew install ripgrep fd fzf lazygit git-delta
 
 # Shell enhancements
-brew install starship
+brew install starship bat tmux atuin eza zoxide
 
 # Terminal and window manager
 brew install --cask ghostty
@@ -50,6 +50,7 @@ stow nvim
 stow ghostty
 stow aerospace
 stow starship
+stow tmux
 
 echo "✅ Installation complete!"
 echo ""
