@@ -37,7 +37,7 @@ copy-on-select = true
 macos-option-as-alt = true
 
 # Start tmux automatically when Ghostty opens
-command = tmux new-session -A -s main
+command = /opt/homebrew/bin/tmux new-session -A -s main
 
 # Font size keybindings
 keybind = cmd+plus=increase_font_size:1
