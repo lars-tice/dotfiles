@@ -38,8 +38,9 @@ alias hlist='atuin history list --limit 50'  # Show recent commands
 
 # Better ls with eza
 alias ls='eza --icons'
-alias lsa='eza -la --icons'     # Detailed list with hidden files
+alias lsa='eza -lsa --icons'     # Detailed list with hidden files
 alias lt='eza --tree --icons'   # Tree view
+alias ld='eza -D --icons'       # List only directories
 
 # Zoxide for smarter directory navigation
 # Note: eval "$(zoxide init zsh)" has issues in some environments
