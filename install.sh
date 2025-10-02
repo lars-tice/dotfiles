@@ -54,6 +54,7 @@ stow ghostty
 stow aerospace
 stow starship
 stow tmux
+stow karabiner
 
 echo "✅ Installation complete!"
 echo ""
