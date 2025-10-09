@@ -1,0 +1,17 @@
+# macOS-specific Ghostty configuration overrides
+
+# macOS titlebar style
+macos-titlebar-style = native
+
+# macOS option key behavior
+macos-option-as-alt = true
+
+# Start tmux automatically with Homebrew path
+command = /opt/homebrew/bin/tmux new-session -A -s main
+
+# macOS keybindings (Cmd key)
+keybind = cmd+plus=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+keybind = cmd+0=reset_font_size
+# Also support cmd+= (no shift needed for plus)
+keybind = cmd+equal=increase_font_size:1

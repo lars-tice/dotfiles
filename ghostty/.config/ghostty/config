@@ -4,7 +4,7 @@
 background-opacity = 0.85
 
 # Theme - Tokyo Night
-theme = TokyoNight
+theme = tokyonight
 
 # Font Configuration
 # Using JetBrains Mono Nerd Font for icons and glyphs
@@ -12,8 +12,7 @@ font-family = JetBrainsMonoNerdFontMono-Regular
 font-size = 14
 
 # Window Configuration
-# Use native titlebar without tabs (we'll use tmux for multiplexing)
-macos-titlebar-style = native
+# Platform-specific titlebar settings are in @macos/@linux configs
 
 # Additional recommended settings
 cursor-style = block
@@ -33,15 +32,16 @@ scrollback-limit = 10000
 # Copy on select
 copy-on-select = true
 
-# macOS specific settings
-macos-option-as-alt = true
+# Cross-platform settings with fallbacks
+# Note: Platform-specific overrides are handled by @macos/@linux stow packages
 
-# Start tmux automatically when Ghostty opens
-command = /opt/homebrew/bin/tmux new-session -A -s main
+# Default tmux command (works on most Linux systems)
+# This will be overridden by platform-specific configs
+command = tmux new-session -A -s main
 
-# Font size keybindings
-keybind = cmd+plus=increase_font_size:1
-keybind = cmd+minus=decrease_font_size:1
-keybind = cmd+0=reset_font_size
-# Also support cmd+= (no shift needed for plus)
-keybind = cmd+equal=increase_font_size:1
+# Cross-platform keybindings (Ctrl for Linux, Cmd for macOS)
+# Default to Ctrl bindings (Linux/Windows style)
+keybind = ctrl+plus=increase_font_size:1
+keybind = ctrl+minus=decrease_font_size:1
+keybind = ctrl+0=reset_font_size
+keybind = ctrl+equal=increase_font_size:1

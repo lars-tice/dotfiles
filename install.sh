@@ -15,28 +15,85 @@ fi
 echo "📦 Installing dependencies via Homebrew..."
 
 # Core tools
-brew install git gh neovim stow
+echo "📦 Installing core tools..."
+for pkg in git gh neovim stow; do
+    if ! brew list | grep -q "^$pkg$"; then
+        brew install "$pkg"
+    else
+        echo "✓ $pkg already installed"
+    fi
+done
 
 # Security tools
-brew install gnupg git-crypt
+echo "📦 Installing security tools..."
+for pkg in gnupg git-crypt; do
+    if ! brew list | grep -q "^$pkg$"; then
+        brew install "$pkg"
+    else
+        echo "✓ $pkg already installed"
+    fi
+done
 
 # Development tools
-brew install ripgrep fd fzf lazygit git-delta uv glow
+echo "📦 Installing development tools..."
+for pkg in ripgrep fd fzf lazygit git-delta uv glow; do
+    if ! brew list | grep -q "^$pkg$"; then
+        brew install "$pkg"
+    else
+        echo "✓ $pkg already installed"
+    fi
+done
 
 # Shell enhancements
-brew install starship bat tmux atuin eza zoxide
+echo "📦 Installing shell enhancements..."
+for pkg in starship bat tmux atuin eza zoxide; do
+    if ! brew list | grep -q "^$pkg$"; then
+        brew install "$pkg"
+    else
+        echo "✓ $pkg already installed"
+    fi
+done
 
 # Terminal and window manager
-brew install --cask ghostty
-brew install --cask nikitabobko/tap/aerospace
+echo "📦 Installing terminal and window manager..."
+for cask in ghostty nikitabobko/tap/aerospace; do
+    if ! brew list --cask | grep -q "$(basename $cask)$"; then
+        brew install --cask "$cask"
+    else
+        echo "✓ $(basename $cask) already installed"
+    fi
+done
 
 # Fonts
-brew install --cask font-jetbrains-mono-nerd-font
+echo "📦 Installing fonts..."
+if ! brew list --cask | grep -q "^font-jetbrains-mono-nerd-font$"; then
+    brew install --cask font-jetbrains-mono-nerd-font
+else
+    echo "✓ font-jetbrains-mono-nerd-font already installed"
+fi
 
 # Install fzf shell integration
 $(brew --prefix)/opt/fzf/install --all --no-bash --no-fish --no-update-rc
 
 echo "🔗 Stowing dotfiles..."
+
+# Helper function to safely stow packages
+safe_stow() {
+    local package="$1"
+    if [ -d "$package" ]; then
+        if stow -n "$package" 2>/dev/null; then
+            stow "$package"
+            echo "✓ Stowed $package"
+        else
+            echo "⚠️  Conflicts detected for $package, attempting to resolve..."
+            stow --adopt "$package" 2>/dev/null || true
+            stow "$package"
+            echo "✓ Stowed $package (with conflict resolution)"
+        fi
+    else
+        echo "⚠️  Directory $package not found, skipping"
+    fi
+}
 
 # Remove existing files if they exist (backup first)
 for config in .zshrc .gitconfig .fzf.zsh; do
@@ -47,14 +104,14 @@ for config in .zshrc .gitconfig .fzf.zsh; do
 done
 
 # Stow configurations
-stow zsh
-stow git
-stow nvim
-stow ghostty
-stow aerospace
-stow starship
-stow tmux
-stow karabiner
+safe_stow zsh
+safe_stow git
+safe_stow nvim
+safe_stow ghostty
+safe_stow aerospace
+safe_stow starship
+safe_stow tmux
+safe_stow karabiner
 
 echo "✅ Installation complete!"
 echo ""
