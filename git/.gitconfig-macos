@@ -1,0 +1,15 @@
+# macOS-specific git configuration
+# This file is included when git detects /Users/ paths (macOS)
+
+[credential]
+	helper = osxkeychain
+	helper = !/opt/homebrew/bin/gh auth git-credential
+
+[credential "https://github.com"]
+	username = lars-tice
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential

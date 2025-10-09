@@ -1,16 +1,12 @@
 [user]
 	name = Lars Tice
 	email = lars.tice@gmail.com
-[credential]
-	helper = osxkeychain
-	helper = \\!/opt/homebrew/bin/gh auth git-credential
-[credential "https://github.com"]
-	username = lars-tice
-	helper =
-	helper = !/opt/homebrew/bin/gh auth git-credential
-[credential "https://gist.github.com"]
-	helper =
-	helper = !/opt/homebrew/bin/gh auth git-credential
+
+# Platform-specific credential configurations
+[includeIf "gitdir:/Users/"]
+	path = .gitconfig-macos
+[includeIf "gitdir:/home/"]
+	path = .gitconfig-linux
 
 [core]
 	pager = delta
