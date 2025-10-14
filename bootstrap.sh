@@ -41,16 +41,16 @@ if ! uv tool list 2>/dev/null | grep -q ansible-core; then
     uv tool install ansible-core
     echo "✓ Ansible installed via uv"
 else
-    echo "✓ Ansible already installed via uv ($(uv tool run ansible --version | head -n1))"
+    echo "✓ Ansible already installed via uv ($(ansible --version | head -n1))"
 fi
 
 # Install Ansible collections
 echo "📦 Installing Ansible collections..."
-uv tool run ansible-galaxy collection install -r "$(dirname "$0")/requirements.yml"
+ansible-galaxy collection install -r "$(dirname "$0")/requirements.yml"
 
 # Run playbook
 echo "▶️  Running Ansible playbook..."
-uv tool run ansible-playbook "$(dirname "$0")/playbook.yml" \
+ansible-playbook "$(dirname "$0")/playbook.yml" \
     --extra-vars "platform=$PLATFORM" \
     "$@"
 
