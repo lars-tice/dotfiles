@@ -36,6 +36,26 @@ The bootstrap script will:
 ./bootstrap.sh --extra-vars "force_config=true"
 ```
 
+### Cloudflared SSH Access (Optional)
+
+If you use Cloudflare tunnels for SSH access, configure the hostname before running the playbook:
+
+**Via Environment Variable:**
+```bash
+export CLOUDFLARED_SSH_HOSTNAME="your-ssh-hostname.example.com"
+./bootstrap.sh
+```
+
+**Via Command-Line Flag:**
+```bash
+./bootstrap.sh --extra-vars "cloudflared_ssh_hostname=your-ssh-hostname.example.com"
+```
+
+**Skip cloudflared SSH setup:**
+Simply don't set the variable - cloudflared binary will still be installed, but SSH config won't be modified.
+
+**Note**: This configuration is optional. The playbook installs cloudflared on all systems, but only configures SSH access if you provide a hostname.
+
 ### Testing Changes (Dry-Run)
 
 Before making actual changes, you can preview what would happen using Ansible's check mode:
@@ -116,8 +136,9 @@ This setup uses a **Python-free approach** for dependency management:
 - **stow**: Symlink farm manager for dotfiles
 
 #### Security Tools
-- **gnupg**: GNU Privacy Guard for encryption and signing (macOS only via brew)
-- **git-crypt**: Transparent file encryption in git repositories (macOS only via brew)
+- **gnupg**: GNU Privacy Guard for encryption and signing
+- **git-crypt**: Transparent file encryption in git repositories
+- **cloudflared**: Cloudflare tunnel client for secure remote access
 - **Git Credential Manager**: Cross-platform credential helper (Linux only)
 
 #### Development Tools

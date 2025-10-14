@@ -7,6 +7,7 @@
     force_config: false
     home_dir: "{{ ansible_env.HOME }}"
     dotfiles_dir: "{{ home_dir }}/dotfiles"
+    cloudflared_ssh_hostname: "{{ lookup('env', 'CLOUDFLARED_SSH_HOSTNAME') | default('', true) }}"
 
   tasks:
     # ============================================================================
@@ -387,17 +388,18 @@
             mode: '0700'
 
         - name: Check if cloudflared SSH config already exists
-          shell: grep -q "REDACTED_SSH_HOSTNAME" {{ home_dir }}/.ssh/config
+          when: cloudflared_ssh_hostname | length > 0
+          shell: grep -q "{{ cloudflared_ssh_hostname }}" {{ home_dir }}/.ssh/config
           register: cloudflared_ssh_config_check
           failed_when: false
           changed_when: false
 
         - name: Add cloudflared SSH configuration
-          when: cloudflared_ssh_config_check.rc != 0
+          when: cloudflared_ssh_hostname | length > 0 and (cloudflared_ssh_config_check.skipped is not defined and cloudflared_ssh_config_check.rc != 0)
           shell: |
             echo "" >> {{ home_dir }}/.ssh/config
             echo "# Cloudflared SSH access (added by Ansible)" >> {{ home_dir }}/.ssh/config
-            cloudflared access ssh-config --hostname REDACTED_SSH_HOSTNAME | grep -v "^Add to your" | grep -v "^$" >> {{ home_dir }}/.ssh/config
+            cloudflared access ssh-config --hostname {{ cloudflared_ssh_hostname }} | grep -v "^Add to your" | grep -v "^$" >> {{ home_dir }}/.ssh/config
 
     # ============================================================================
     # Cross-platform: Stow Dotfiles
