@@ -362,6 +362,64 @@ sudo -v  # Validates and caches credentials for 5 minutes
 ./bootstrap.sh --extra-vars "force_config=true"
 ```
 
+## Emergency Procedures
+
+### Removing Sensitive Data from Git History
+
+If you accidentally commit sensitive data (passwords, API keys, hostnames) to git:
+
+**⚠️ Warning**: This rewrites git history and requires force push. Only do this if absolutely necessary.
+
+#### Prerequisites
+```bash
+# Install git-filter-repo
+brew install git-filter-repo      # macOS
+sudo apt install git-filter-repo  # Linux
+```
+
+#### Process
+```bash
+cd ~/dotfiles
+
+# 1. Create backup
+git branch backup-before-rewrite
+
+# 2. Replace sensitive data in file content
+git filter-repo --force --replace-text <(echo 'SECRET_VALUE==>REDACTED')
+
+# 3. Verify removal
+git log --all -p | grep "SECRET_VALUE" || echo "Successfully removed"
+
+# 4. Re-add remote (filter-repo removes it for safety)
+git remote add origin https://github.com/lars-tice/dotfiles.git
+
+# 5. Force push
+git push --force origin main
+
+# 6. Clean up backup
+git branch -D backup-before-rewrite
+```
+
+#### Post-Rewrite Actions
+
+On any other machines with clones of this repo:
+```bash
+# Delete old clone
+rm -rf ~/dotfiles
+
+# Re-clone fresh
+git clone https://github.com/lars-tice/dotfiles.git ~/dotfiles
+```
+
+#### Limitations
+
+- **GitHub caching**: GitHub may cache old commits for 30-90 days. Contact GitHub Support to request purge if critical.
+- **Forks**: Any forks will retain old history until owners rebase.
+- **Local clones**: Anyone who cloned before the rewrite still has old data locally.
+- **Commit messages**: By default, `--replace-text` only replaces in file content, not commit messages. Use `--replace-message` for commit message replacement.
+
+**Note**: The `--force` flag is required when running on a non-fresh clone. Always create a backup branch first.
+
 ## Structure
 
 ```
