@@ -187,9 +187,8 @@
             priority: 50
 
         - name: Set Ghostty as GNOME default terminal
-          community.general.dconf:
-            key: /org/gnome/desktop/default-applications/terminal/exec
-            value: "'ghostty'"
+          shell: gsettings set org.gnome.desktop.default-applications.terminal exec 'ghostty'
+          changed_when: false
 
         - name: Create custom Ghostty desktop file
           copy:

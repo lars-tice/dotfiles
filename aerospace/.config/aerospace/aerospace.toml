@@ -75,6 +75,9 @@ alt-shift-9 = 'move-node-to-workspace 9'
 # Reload config
 alt-shift-r = 'reload-config'
 
+# Launch terminal
+alt-return = 'exec-and-forget open -a Ghostty'
+
 # Layout changes
 alt-t = 'layout tiles horizontal vertical'
 
