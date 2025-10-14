@@ -1,0 +1,414 @@
+---
+- name: Configure dotfiles environment
+  hosts: localhost
+  connection: local
+
+  vars:
+    force_config: false
+    home_dir: "{{ ansible_env.HOME }}"
+    dotfiles_dir: "{{ home_dir }}/dotfiles"
+
+  tasks:
+    # ============================================================================
+    # macOS: Homebrew Installation
+    # ============================================================================
+    - name: Install Homebrew (macOS)
+      when: ansible_os_family == "Darwin"
+      block:
+        - name: Check if Homebrew is installed
+          command: which brew
+          register: brew_check
+          ignore_errors: true
+          changed_when: false
+
+        - name: Install Homebrew
+          shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          when: brew_check.rc != 0
+
+        - name: Add Homebrew to PATH for Apple Silicon
+          when: ansible_machine == "arm64" and brew_check.rc != 0
+          lineinfile:
+            path: "{{ home_dir }}/.zprofile"
+            line: 'eval "$(/opt/homebrew/bin/brew shellenv)"'
+            create: yes
+
+    # ============================================================================
+    # macOS: Core Tools
+    # ============================================================================
+    - name: Install core tools (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew:
+        name:
+          - git
+          - gh
+          - neovim
+          - stow
+        state: present
+
+    # ============================================================================
+    # macOS: Security Tools
+    # ============================================================================
+    - name: Install security tools (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew:
+        name:
+          - gnupg
+          - git-crypt
+        state: present
+
+    # ============================================================================
+    # macOS: Development Tools
+    # ============================================================================
+    - name: Install development tools (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew:
+        name:
+          - ripgrep
+          - fd
+          - fzf
+          - lazygit
+          - git-delta
+          - uv
+          - glow
+        state: present
+
+    - name: Install fzf shell integration (macOS)
+      when: ansible_os_family == "Darwin"
+      shell: $(brew --prefix)/opt/fzf/install --all --no-bash --no-fish --no-update-rc
+      args:
+        creates: "{{ home_dir }}/.fzf.zsh"
+
+    # ============================================================================
+    # macOS: Shell Enhancements
+    # ============================================================================
+    - name: Install shell enhancements (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew:
+        name:
+          - starship
+          - bat
+          - tmux
+          - atuin
+          - eza
+          - zoxide
+        state: present
+
+    # ============================================================================
+    # macOS: Terminal and Window Manager
+    # ============================================================================
+    - name: Install Ghostty terminal (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew_cask:
+        name: ghostty
+        state: present
+
+    - name: Install AeroSpace window manager (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew_cask:
+        name: nikitabobko/tap/aerospace
+        state: present
+
+    # ============================================================================
+    # macOS: Fonts
+    # ============================================================================
+    - name: Install JetBrains Mono Nerd Font (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew_cask:
+        name: font-jetbrains-mono-nerd-font
+        state: present
+
+    # ============================================================================
+    # Linux: Core Tools
+    # ============================================================================
+    - name: Update apt cache (Linux)
+      when: ansible_os_family == "Debian"
+      become: yes
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install core tools (Linux)
+      when: ansible_os_family == "Debian"
+      become: yes
+      apt:
+        name:
+          - git
+          - stow
+          - neovim
+          - xclip  # Clipboard integration
+        state: present
+
+    # ============================================================================
+    # Linux: Development Tools
+    # ============================================================================
+    - name: Install development tools (Linux)
+      when: ansible_os_family == "Debian"
+      become: yes
+      apt:
+        name:
+          - ripgrep
+          - fd-find
+          - fzf
+          - bat
+          - tmux
+          - curl
+          - wget
+        state: present
+
+    # ============================================================================
+    # Linux: Ghostty Terminal
+    # ============================================================================
+    - name: Install Ghostty terminal (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if Ghostty is installed
+          command: which ghostty
+          register: ghostty_check
+          ignore_errors: true
+          changed_when: false
+
+        - name: Download Ghostty package
+          when: ghostty_check.rc != 0
+          get_url:
+            url: https://github.com/mkasberg/ghostty-ubuntu/releases/download/1.1.3-0-ppa2/ghostty_1.1.3-0.ppa2_amd64_24.04.deb
+            dest: /tmp/ghostty_1.1.3-0.ppa2_amd64_24.04.deb
+
+        - name: Install Ghostty package
+          when: ghostty_check.rc != 0
+          become: yes
+          apt:
+            deb: /tmp/ghostty_1.1.3-0.ppa2_amd64_24.04.deb
+
+        - name: Set Ghostty as default terminal
+          become: yes
+          alternatives:
+            name: x-terminal-emulator
+            path: /usr/bin/ghostty
+            priority: 50
+
+        - name: Set Ghostty as GNOME default terminal
+          community.general.dconf:
+            key: /org/gnome/desktop/default-applications/terminal/exec
+            value: "'ghostty'"
+
+        - name: Create custom Ghostty desktop file
+          copy:
+            dest: "{{ home_dir }}/.local/share/applications/com.mitchellh.ghostty.desktop"
+            content: |
+              [Desktop Entry]
+              Name=Ghostty
+              Type=Application
+              Comment=Fast, feature-rich, cross-platform terminal emulator
+              Exec=/usr/bin/ghostty
+              Icon=com.mitchellh.ghostty
+              Categories=System;TerminalEmulator;
+              Keywords=terminal;tty;pty;term;console;shell;ghostty;
+              StartupNotify=true
+              StartupWMClass=com.mitchellh.ghostty
+              Terminal=false
+              Actions=new-window;
+              X-GNOME-UsesNotifications=true
+              X-TerminalArgExec=-e
+              X-TerminalArgTitle=--title=
+              X-TerminalArgAppId=--class=
+              X-TerminalArgDir=--working-directory=
+              X-TerminalArgHold=--wait-after-command
+
+              [Desktop Action new-window]
+              Name=New Window
+              Exec=/usr/bin/ghostty
+
+        - name: Update desktop database
+          command: update-desktop-database {{ home_dir }}/.local/share/applications/
+          changed_when: false
+
+    # ============================================================================
+    # Linux: keyd Keyboard Remapping
+    # ============================================================================
+    - name: Install keyd keyboard remapping (Linux)
+      when: ansible_os_family == "Debian"
+      become: yes
+      block:
+        - name: Install keyd
+          apt:
+            name: keyd
+            state: present
+          register: keyd_install
+          ignore_errors: true
+
+        - name: Add keyd PPA if native package unavailable
+          when: keyd_install is failed
+          apt_repository:
+            repo: ppa:keyd-team/ppa
+            state: present
+
+        - name: Install keyd from PPA
+          when: keyd_install is failed
+          apt:
+            name: keyd
+            state: present
+            update_cache: yes
+
+        - name: Ensure keyd service is enabled and started
+          systemd:
+            name: keyd
+            enabled: yes
+            state: started
+
+    # ============================================================================
+    # Linux: Fonts
+    # ============================================================================
+    - name: Install JetBrains Mono Nerd Font (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Create fonts directory
+          file:
+            path: "{{ home_dir }}/.local/share/fonts"
+            state: directory
+
+        - name: Check if JetBrains Mono Nerd Font is installed
+          stat:
+            path: "{{ home_dir }}/.local/share/fonts/JetBrainsMonoNerdFontMono-Regular.ttf"
+          register: font_check
+
+        - name: Download JetBrains Mono Nerd Font
+          when: not font_check.stat.exists
+          unarchive:
+            src: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/JetBrainsMono.zip
+            dest: /tmp/
+            remote_src: yes
+
+        - name: Install font files
+          when: not font_check.stat.exists
+          shell: cp /tmp/*.ttf {{ home_dir }}/.local/share/fonts/
+          args:
+            creates: "{{ home_dir }}/.local/share/fonts/JetBrainsMonoNerdFontMono-Regular.ttf"
+
+        - name: Refresh font cache
+          when: not font_check.stat.exists
+          command: fc-cache -fv
+          changed_when: false
+
+    # ============================================================================
+    # Linux: Starship Prompt
+    # ============================================================================
+    - name: Install Starship prompt (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if Starship is installed
+          command: which starship
+          register: starship_check
+          ignore_errors: true
+          changed_when: false
+
+        - name: Install Starship
+          when: starship_check.rc != 0
+          shell: curl -sS https://starship.rs/install.sh | sh -s -- --yes
+          args:
+            creates: "{{ home_dir }}/.local/bin/starship"
+
+    # ============================================================================
+    # Linux: Git Credential Manager
+    # ============================================================================
+    - name: Install Git Credential Manager (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if GCM is installed
+          command: which git-credential-manager
+          register: gcm_check
+          ignore_errors: true
+          changed_when: false
+
+        - name: Download GCM package
+          when: gcm_check.rc != 0
+          get_url:
+            url: https://github.com/git-ecosystem/git-credential-manager/releases/download/v2.6.0/gcm-linux_amd64.2.6.0.deb
+            dest: /tmp/gcm-linux_amd64.2.6.0.deb
+
+        - name: Install GCM package
+          when: gcm_check.rc != 0
+          become: yes
+          apt:
+            deb: /tmp/gcm-linux_amd64.2.6.0.deb
+
+    # ============================================================================
+    # Cross-platform: Stow Dotfiles
+    # ============================================================================
+    - name: Backup existing dotfiles (force mode)
+      when: force_config | bool
+      block:
+        - name: Get timestamp for backups
+          set_fact:
+            backup_timestamp: "{{ ansible_date_time.date }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+
+        - name: Backup existing configs
+          shell: |
+            for config in .zshrc .bashrc .gitconfig .fzf.zsh .profile; do
+              if [ -f {{ home_dir }}/$config ] && [ ! -L {{ home_dir }}/$config ]; then
+                mv {{ home_dir }}/$config {{ home_dir }}/$config.backup.{{ backup_timestamp }}
+                echo "Backed up $config"
+              fi
+            done
+          register: backup_result
+          changed_when: "'Backed up' in backup_result.stdout"
+
+    - name: Stow dotfiles packages
+      shell: |
+        cd {{ dotfiles_dir }}
+        for package in zsh git nvim starship tmux ghostty; do
+          if [ -d "$package" ]; then
+            {% if force_config | bool %}
+            stow --restow "$package" 2>&1 || echo "Warning: Issues with $package"
+            {% else %}
+            stow --adopt "$package" 2>&1 || true
+            stow --restow "$package" 2>&1 || echo "Warning: Issues with $package"
+            {% endif %}
+            echo "Stowed $package"
+          fi
+        done
+      register: stow_result
+      changed_when: "'Stowed' in stow_result.stdout"
+
+    - name: Stow platform-specific packages (macOS)
+      when: ansible_os_family == "Darwin"
+      shell: |
+        cd {{ dotfiles_dir }}
+        for package in @macos aerospace karabiner; do
+          if [ -d "$package" ]; then
+            {% if force_config | bool %}
+            stow --restow "$package" 2>&1 || echo "Warning: Issues with $package"
+            {% else %}
+            stow --adopt "$package" 2>&1 || true
+            stow --restow "$package" 2>&1 || echo "Warning: Issues with $package"
+            {% endif %}
+            echo "Stowed $package"
+          fi
+        done
+      register: stow_macos_result
+      changed_when: "'Stowed' in stow_macos_result.stdout"
+
+    - name: Configure keyd (Linux)
+      when: ansible_os_family == "Debian"
+      become: yes
+      block:
+        - name: Check if keyd config exists in dotfiles
+          stat:
+            path: "{{ dotfiles_dir }}/keyd/.config/keyd/default.conf"
+          register: keyd_config_check
+
+        - name: Copy keyd configuration
+          when: keyd_config_check.stat.exists
+          copy:
+            src: "{{ dotfiles_dir }}/keyd/.config/keyd/default.conf"
+            dest: /etc/keyd/default.conf
+            owner: root
+            group: root
+            mode: '0644'
+          notify: Restart keyd
+
+  handlers:
+    - name: Restart keyd
+      become: yes
+      systemd:
+        name: keyd
+        state: restarted

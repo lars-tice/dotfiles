@@ -1,7 +1,24 @@
 #!/bin/bash
 
+# ============================================================================
+# DEPRECATED: This script is deprecated in favor of bootstrap.sh + Ansible
+# ============================================================================
+#
+# Please use the new Ansible-based installation instead:
+#   ./bootstrap.sh                                      # Normal mode
+#   ./bootstrap.sh --extra-vars "force_config=true"     # Force mode
+#
+# The new approach uses uv (no system Python!) and Ansible for better:
+# - Idempotency (safe to run multiple times)
+# - Maintainability (declarative configuration)
+# - Selective upgrades (control which packages to update)
+# - Cross-platform consistency
+#
+# This script remains for reference and emergency fallback only.
+# ============================================================================
+
 # Cross-platform dotfiles installation script
-# 
+#
 # Usage:
 #   ./install-cross-platform.sh                    # Normal mode (adopts existing configs)
 #   FORCE_CONFIG=true ./install-cross-platform.sh  # Force mode (prioritizes dotfiles)
