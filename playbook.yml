@@ -139,6 +139,18 @@
         state: present
 
     # ============================================================================
+    # Linux: Security Tools
+    # ============================================================================
+    - name: Install security tools (Linux)
+      when: ansible_os_family == "Debian"
+      become: yes
+      apt:
+        name:
+          - gnupg
+          - git-crypt
+        state: present
+
+    # ============================================================================
     # Linux: Development Tools
     # ============================================================================
     - name: Install development tools (Linux)
