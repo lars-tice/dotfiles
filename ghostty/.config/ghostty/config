@@ -35,9 +35,10 @@ copy-on-select = true
 # Cross-platform settings with fallbacks
 # Note: Platform-specific overrides are handled by @macos/@linux stow packages
 
-# Default tmux command (works on most Linux systems)
+# Smart tmux attach - attaches to most recent session or creates new
+# Prevents nested tmux sessions when launching Ghostty from within tmux
 # This will be overridden by platform-specific configs
-command = tmux new-session -A -s main
+command = ~/.local/bin/tmux-smart-attach
 
 # Cross-platform keybindings (Ctrl for Linux, Cmd for macOS)
 # Default to Ctrl bindings (Linux/Windows style)
@@ -45,3 +46,6 @@ keybind = ctrl+plus=increase_font_size:1
 keybind = ctrl+minus=decrease_font_size:1
 keybind = ctrl+0=reset_font_size
 keybind = ctrl+equal=increase_font_size:1
+
+# Open new window without tmux (for tools like Claude Code that need full scrollback)
+keybind = ctrl+shift+n=new_window:bash

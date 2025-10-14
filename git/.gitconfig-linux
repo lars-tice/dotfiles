@@ -1,14 +1,20 @@
-# Linux-specific git configuration  
+# Linux-specific git configuration
 # This file is included when git detects /home/ paths (Linux)
 
 [credential]
 	helper = store
+	credentialStore = secretservice
 
 [credential "https://github.com"]
 	username = lars-tice
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
 
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
+
+[credential "https://dev.azure.com"]
+	useHttpPath = true
+	helper =
+	helper = /usr/local/bin/git-credential-manager

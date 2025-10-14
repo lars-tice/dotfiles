@@ -172,7 +172,22 @@ elif [ "$PLATFORM" = "linux" ]; then
     else
         echo "✓ Starship already installed"
     fi
-    
+
+    # Install Git Credential Manager
+    echo "🔐 Installing Git Credential Manager..."
+    if ! command -v git-credential-manager &> /dev/null; then
+        GCM_VERSION="2.6.0"
+        GCM_DEB="gcm-linux_amd64.${GCM_VERSION}.deb"
+        if [ ! -f "/tmp/${GCM_DEB}" ]; then
+            wget -O "/tmp/${GCM_DEB}" "https://github.com/git-ecosystem/git-credential-manager/releases/download/v${GCM_VERSION}/${GCM_DEB}"
+        fi
+        sudo dpkg -i "/tmp/${GCM_DEB}" || sudo apt-get install -f -y
+        rm -f "/tmp/${GCM_DEB}"
+        echo "✓ Git Credential Manager installed"
+    else
+        echo "✓ Git Credential Manager already installed"
+    fi
+
     # Install other tools manually if not in apt
     echo "ℹ️  Some tools may need manual installation on Linux:"
     echo "   - gh (GitHub CLI): https://cli.github.com/manual/installation"
