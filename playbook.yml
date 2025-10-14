@@ -57,6 +57,15 @@
         state: present
 
     # ============================================================================
+    # macOS: Cloudflared Tunnel
+    # ============================================================================
+    - name: Install cloudflared (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew:
+        name: cloudflare/cloudflare/cloudflared
+        state: present
+
+    # ============================================================================
     # macOS: Development Tools
     # ============================================================================
     - name: Install development tools (macOS)
@@ -149,6 +158,30 @@
           - gnupg
           - git-crypt
         state: present
+
+    # ============================================================================
+    # Linux: Cloudflared Tunnel
+    # ============================================================================
+    - name: Install cloudflared (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if cloudflared is installed
+          command: which cloudflared
+          register: cloudflared_check
+          ignore_errors: true
+          changed_when: false
+
+        - name: Download cloudflared package
+          when: cloudflared_check.rc != 0
+          get_url:
+            url: https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+            dest: /tmp/cloudflared-linux-amd64.deb
+
+        - name: Install cloudflared package
+          when: cloudflared_check.rc != 0
+          become: yes
+          apt:
+            deb: /tmp/cloudflared-linux-amd64.deb
 
     # ============================================================================
     # Linux: Development Tools
@@ -341,6 +374,30 @@
           become: yes
           apt:
             deb: /tmp/gcm-linux_amd64.2.6.0.deb
+
+    # ============================================================================
+    # Cross-platform: Cloudflared SSH Configuration
+    # ============================================================================
+    - name: Configure cloudflared SSH access
+      block:
+        - name: Ensure SSH config directory exists
+          file:
+            path: "{{ home_dir }}/.ssh"
+            state: directory
+            mode: '0700'
+
+        - name: Check if cloudflared SSH config already exists
+          shell: grep -q "REDACTED_SSH_HOSTNAME" {{ home_dir }}/.ssh/config
+          register: cloudflared_ssh_config_check
+          ignore_errors: true
+          changed_when: false
+
+        - name: Add cloudflared SSH configuration
+          when: cloudflared_ssh_config_check.rc != 0
+          shell: |
+            echo "" >> {{ home_dir }}/.ssh/config
+            echo "# Cloudflared SSH access (added by Ansible)" >> {{ home_dir }}/.ssh/config
+            cloudflared access ssh-config --hostname REDACTED_SSH_HOSTNAME >> {{ home_dir }}/.ssh/config
 
     # ============================================================================
     # Cross-platform: Stow Dotfiles
