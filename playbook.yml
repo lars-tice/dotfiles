@@ -18,7 +18,7 @@
         - name: Check if Homebrew is installed
           command: which brew
           register: brew_check
-          ignore_errors: true
+          failed_when: false
           changed_when: false
 
         - name: Install Homebrew
@@ -168,7 +168,7 @@
         - name: Check if cloudflared is installed
           command: which cloudflared
           register: cloudflared_check
-          ignore_errors: true
+          failed_when: false
           changed_when: false
 
         - name: Download cloudflared package
@@ -209,7 +209,7 @@
         - name: Check if Ghostty is installed
           command: which ghostty
           register: ghostty_check
-          ignore_errors: true
+          failed_when: false
           changed_when: false
 
         - name: Download Ghostty package
@@ -278,7 +278,7 @@
             name: keyd
             state: present
           register: keyd_install
-          ignore_errors: true
+          failed_when: false
 
         - name: Add keyd PPA if native package unavailable
           when: keyd_install is failed
@@ -342,7 +342,7 @@
         - name: Check if Starship is installed
           command: which starship
           register: starship_check
-          ignore_errors: true
+          failed_when: false
           changed_when: false
 
         - name: Install Starship
@@ -360,7 +360,7 @@
         - name: Check if GCM is installed
           command: which git-credential-manager
           register: gcm_check
-          ignore_errors: true
+          failed_when: false
           changed_when: false
 
         - name: Download GCM package
@@ -389,7 +389,7 @@
         - name: Check if cloudflared SSH config already exists
           shell: grep -q "REDACTED_SSH_HOSTNAME" {{ home_dir }}/.ssh/config
           register: cloudflared_ssh_config_check
-          ignore_errors: true
+          failed_when: false
           changed_when: false
 
         - name: Add cloudflared SSH configuration
