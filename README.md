@@ -18,8 +18,11 @@ chmod +x bootstrap.sh
 The bootstrap script will:
 1. Install [uv](https://github.com/astral-sh/uv) (Fast Python package manager)
 2. Use uv to install Ansible (no system Python required!)
-3. Run the Ansible playbook to install all dependencies
-4. Stow dotfiles configurations
+3. Prompt for your sudo password (needed for package installation)
+4. Run the Ansible playbook to install all dependencies
+5. Stow dotfiles configurations
+
+**Note**: On Linux, the script will prompt for your sudo password to install packages via `apt`.
 
 ### Installation Modes
 
@@ -48,6 +51,8 @@ Before making actual changes, you can preview what would happen using Ansible's 
 **What each flag does:**
 - `--check`: Ansible's dry-run mode (no actual changes)
 - `--diff`: Shows the actual differences that would be made
+
+**Note**: The script will still prompt for your sudo password even in check mode, as Ansible needs to validate access permissions. Your password won't be used to make actual changes.
 
 **What gets protected in check mode:**
 - ✅ Package installations (brew, apt) - simulated only
@@ -316,12 +321,33 @@ uv tool uninstall ansible-core
 uv tool install ansible-core
 ```
 
+### Sudo password prompt (Linux)
+
+By default, the bootstrap script will prompt for your sudo password on Linux (needed for `apt` operations). If you want to avoid typing your password every time:
+
+**Option 1: Configure passwordless sudo for specific commands** (Recommended)
+```bash
+sudo visudo
+# Add this line (replace 'yourusername' with your actual username):
+yourusername ALL=(ALL) NOPASSWD: /usr/bin/apt, /usr/bin/dpkg, /usr/bin/systemctl
+```
+
+**Option 2: Skip password prompt** (Not recommended - less secure)
+Edit `bootstrap.sh` and remove the `-K` flag from the `ansible-playbook` command.
+
+**Option 3: Store sudo credentials temporarily**
+```bash
+sudo -v  # Validates and caches credentials for 5 minutes
+./bootstrap.sh --extra-vars "force_config=true"
+```
+
 ## Structure
 
 ```
 dotfiles/
 ├── bootstrap.sh              # Main installation script
 ├── playbook.yml             # Ansible configuration
+├── inventory.yml            # Ansible inventory (localhost)
 ├── requirements.yml         # Ansible Galaxy collections
 ├── README.md                # This file
 ├── zsh/                     # Zsh configuration

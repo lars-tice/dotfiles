@@ -50,8 +50,9 @@ ansible-galaxy collection install -r "$(dirname "$0")/requirements.yml"
 
 # Run playbook
 echo "▶️  Running Ansible playbook..."
-ansible-playbook "$(dirname "$0")/playbook.yml" \
+ansible-playbook -i "$(dirname "$0")/inventory.yml" "$(dirname "$0")/playbook.yml" \
     --extra-vars "platform=$PLATFORM" \
+    -K \
     "$@"
 
 echo ""
