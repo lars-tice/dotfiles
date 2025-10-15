@@ -540,6 +540,7 @@
             for config in .zshrc .bashrc .gitconfig .fzf.zsh .profile; do
               if [ -f {{ home_dir }}/$config ] && [ ! -L {{ home_dir }}/$config ]; then
                 cp {{ home_dir }}/$config {{ home_dir }}/$config.backup.{{ backup_timestamp }}
+                rm {{ home_dir }}/$config
                 echo "Backed up $config"
               fi
             done
