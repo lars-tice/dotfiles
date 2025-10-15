@@ -158,8 +158,14 @@ alias hlist='atuin history list --limit 50'
 # ============================================================================
 # bat (Better cat)
 # ============================================================================
-alias cat='bat'
-alias less='bat'
+# Ubuntu/Debian use 'batcat' due to naming conflict
+if command -v batcat &>/dev/null; then
+    alias cat='batcat'
+    alias less='batcat'
+elif command -v bat &>/dev/null; then
+    alias cat='bat'
+    alias less='bat'
+fi
 export BAT_THEME="TwoDark"
 
 # ============================================================================

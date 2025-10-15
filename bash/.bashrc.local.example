@@ -56,7 +56,7 @@
 
 # Dynamically set Azure subscription ID from azureProfile.json
 # if [ -f "$HOME/.azure/azureProfile.json" ] && command -v jq &>/dev/null; then
-#   export TF_VAR_arm_subscription_id=$(cat "$HOME/.azure/azureProfile.json" | jq -r '.subscriptions[] | select(.isDefault == true) | .id')
+#   export TF_VAR_arm_subscription_id=$(jq -r '.subscriptions[] | select(.isDefault == true) | .id' "$HOME/.azure/azureProfile.json")
 # fi
 
 # ============================================================================
