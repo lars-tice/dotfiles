@@ -397,17 +397,38 @@
           changed_when: false
           check_mode: no
 
-        - name: Download eza .deb package
+        - name: Ensure GPG keyrings directory exists
           when: eza_check.rc != 0
-          get_url:
-            url: https://github.com/eza-community/eza/releases/download/v0.20.15/eza_0.20.15_amd64.deb
-            dest: /tmp/eza_amd64.deb
+          become: yes
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: '0755'
 
-        - name: Install eza package
+        - name: Add eza repository GPG key
+          when: eza_check.rc != 0
+          become: yes
+          shell: |
+            wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+            chmod 644 /etc/apt/keyrings/gierens.gpg
+          args:
+            creates: /etc/apt/keyrings/gierens.gpg
+
+        - name: Add eza repository
+          when: eza_check.rc != 0
+          become: yes
+          apt_repository:
+            repo: "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main"
+            filename: gierens
+            state: present
+
+        - name: Install eza
           when: eza_check.rc != 0
           become: yes
           apt:
-            deb: /tmp/eza_amd64.deb
+            name: eza
+            update_cache: yes
+            state: present
 
     # ============================================================================
     # Linux: zoxide (Smarter cd)
