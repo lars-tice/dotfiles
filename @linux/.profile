@@ -12,3 +12,4 @@ export XDG_CACHE_HOME="$HOME/.cache"
 
 # Linux clipboard integration for applications
 export CLIP_CMD="xclip -selection clipboard"
+. "$HOME/.atuin/bin/env"
