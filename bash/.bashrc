@@ -142,7 +142,7 @@ eval "$(starship init bash)"
 # Atuin Shell History
 # ============================================================================
 # Load atuin environment
-[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
+[ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"
 
 # Load bash-preexec for atuin
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh

@@ -446,7 +446,7 @@
           when: atuin_check.rc != 0
           shell: curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --yes
           args:
-            creates: "{{ home_dir }}/.cargo/bin/atuin"
+            creates: "{{ home_dir }}/.atuin/bin/atuin"
 
     # ============================================================================
     # Linux: eza (Better ls)
