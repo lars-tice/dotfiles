@@ -105,6 +105,34 @@
         state: present
 
     # ============================================================================
+    # macOS: bat Tokyo Night Themes
+    # ============================================================================
+    - name: Install Tokyo Night themes for bat (macOS)
+      when: ansible_os_family == "Darwin"
+      block:
+        - name: Check if Tokyo Night themes are installed
+          stat:
+            path: "$(brew --prefix)/etc/bat/themes/tokyonight.nvim"
+          register: bat_themes_check
+
+        - name: Create bat themes directory
+          when: not bat_themes_check.stat.exists
+          file:
+            path: "$(brew --prefix)/etc/bat/themes"
+            state: directory
+
+        - name: Clone Tokyo Night themes
+          when: not bat_themes_check.stat.exists
+          git:
+            repo: https://github.com/folke/tokyonight.nvim.git
+            dest: "$(brew --prefix)/etc/bat/themes/tokyonight.nvim"
+            depth: 1
+
+        - name: Build bat cache
+          when: not bat_themes_check.stat.exists
+          command: bat cache --build
+
+    # ============================================================================
     # macOS: Terminal and Window Manager
     # ============================================================================
     - name: Install Ghostty terminal (macOS)
@@ -484,6 +512,40 @@
           shell: curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
           args:
             creates: "{{ home_dir }}/.local/bin/zoxide"
+
+    # ============================================================================
+    # Linux: bat Tokyo Night Themes
+    # ============================================================================
+    - name: Install Tokyo Night themes for bat (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Get bat config directory
+          shell: batcat --config-dir
+          register: bat_config_dir
+          changed_when: false
+          check_mode: no
+
+        - name: Check if Tokyo Night themes are installed
+          stat:
+            path: "{{ bat_config_dir.stdout }}/themes/tokyonight.nvim"
+          register: bat_themes_check
+
+        - name: Create bat themes directory
+          when: not bat_themes_check.stat.exists
+          file:
+            path: "{{ bat_config_dir.stdout }}/themes"
+            state: directory
+
+        - name: Clone Tokyo Night themes
+          when: not bat_themes_check.stat.exists
+          git:
+            repo: https://github.com/folke/tokyonight.nvim.git
+            dest: "{{ bat_config_dir.stdout }}/themes/tokyonight.nvim"
+            depth: 1
+
+        - name: Build bat cache
+          when: not bat_themes_check.stat.exists
+          command: batcat cache --build
 
     # ============================================================================
     # Linux: Git Credential Manager
