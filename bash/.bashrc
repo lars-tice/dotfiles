@@ -166,7 +166,7 @@ elif command -v bat &>/dev/null; then
     alias cat='bat'
     alias less='bat'
 fi
-export BAT_THEME="TwoDark"
+export BAT_THEME="tokyonight_night"
 
 # ============================================================================
 # eza (Better ls)
