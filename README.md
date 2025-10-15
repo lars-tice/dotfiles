@@ -115,7 +115,8 @@ This setup uses a **Python-free approach** for dependency management:
 ## What's Included
 
 ### Configurations
-- **zsh**: Shell configuration with aliases and environment variables
+- **bash**: Bash shell configuration with tool integrations (atuin, eza, zoxide, starship, bat)
+- **zsh**: Zsh shell configuration with aliases and environment variables
 - **git**: Git configuration with delta for better diffs
 - **nvim**: Neovim configuration with LazyVim, Tokyo Night theme, and Telescope integrations
 - **ghostty**: Ghostty terminal configuration with transparency and Tokyo Night theme
@@ -139,6 +140,7 @@ This setup uses a **Python-free approach** for dependency management:
 - **gnupg**: GNU Privacy Guard for encryption and signing
 - **git-crypt**: Transparent file encryption in git repositories
 - **cloudflared**: Cloudflare tunnel client for secure remote access
+- **bitwarden**: Open-source password manager desktop application
 - **Git Credential Manager**: Cross-platform credential helper (Linux only)
 
 #### Development Tools
@@ -154,9 +156,9 @@ This setup uses a **Python-free approach** for dependency management:
 - **starship**: Cross-shell prompt
 - **bat**: Better `cat` with syntax highlighting
 - **tmux**: Terminal multiplexer
-- **atuin**: Shell history database with search (macOS only via brew)
-- **eza**: Modern `ls` replacement with icons (macOS only via brew, Linux requires [manual install](https://github.com/eza-community/eza/blob/main/INSTALL.md))
-- **zoxide**: Smarter `cd` that learns your habits (macOS only via brew)
+- **atuin**: Shell history database with search (macOS via brew, Linux via curl installer)
+- **eza**: Modern `ls` replacement with icons (macOS via brew, Linux via .deb package)
+- **zoxide**: Smarter `cd` that learns your habits (macOS via brew, Linux via curl installer)
 
 ### Platform-Specific Tools
 
@@ -181,6 +183,7 @@ If you need to stow individual configurations manually:
 cd ~/dotfiles
 
 # Cross-platform
+stow bash
 stow zsh
 stow git
 stow nvim
@@ -429,6 +432,7 @@ dotfiles/
 ├── inventory.yml            # Ansible inventory (localhost)
 ├── requirements.yml         # Ansible Galaxy collections
 ├── README.md                # This file
+├── bash/                    # Bash configuration
 ├── zsh/                     # Zsh configuration
 ├── git/                     # Git configuration
 ├── nvim/                    # Neovim configuration

@@ -21,6 +21,7 @@
           register: brew_check
           failed_when: false
           changed_when: false
+          check_mode: no
 
         - name: Install Homebrew
           shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -128,6 +129,15 @@
         state: present
 
     # ============================================================================
+    # macOS: Bitwarden Password Manager
+    # ============================================================================
+    - name: Install Bitwarden desktop app (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew_cask:
+        name: bitwarden
+        state: present
+
+    # ============================================================================
     # Linux: Core Tools
     # ============================================================================
     - name: Update apt cache (Linux)
@@ -171,6 +181,7 @@
           register: cloudflared_check
           failed_when: false
           changed_when: false
+          check_mode: no
 
         - name: Download cloudflared package
           when: cloudflared_check.rc != 0
@@ -212,6 +223,7 @@
           register: ghostty_check
           failed_when: false
           changed_when: false
+          check_mode: no
 
         - name: Download Ghostty package
           when: ghostty_check.rc != 0
@@ -345,12 +357,76 @@
           register: starship_check
           failed_when: false
           changed_when: false
+          check_mode: no
 
         - name: Install Starship
           when: starship_check.rc != 0
           shell: curl -sS https://starship.rs/install.sh | sh -s -- --yes
           args:
             creates: "{{ home_dir }}/.local/bin/starship"
+
+    # ============================================================================
+    # Linux: Atuin Shell History
+    # ============================================================================
+    - name: Install Atuin shell history (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if Atuin is installed
+          command: which atuin
+          register: atuin_check
+          failed_when: false
+          changed_when: false
+          check_mode: no
+
+        - name: Install Atuin
+          when: atuin_check.rc != 0
+          shell: curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --yes
+          args:
+            creates: "{{ home_dir }}/.cargo/bin/atuin"
+
+    # ============================================================================
+    # Linux: eza (Better ls)
+    # ============================================================================
+    - name: Install eza (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if eza is installed
+          command: which eza
+          register: eza_check
+          failed_when: false
+          changed_when: false
+          check_mode: no
+
+        - name: Download eza .deb package
+          when: eza_check.rc != 0
+          get_url:
+            url: https://github.com/eza-community/eza/releases/download/v0.20.15/eza_0.20.15_amd64.deb
+            dest: /tmp/eza_amd64.deb
+
+        - name: Install eza package
+          when: eza_check.rc != 0
+          become: yes
+          apt:
+            deb: /tmp/eza_amd64.deb
+
+    # ============================================================================
+    # Linux: zoxide (Smarter cd)
+    # ============================================================================
+    - name: Install zoxide (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if zoxide is installed
+          command: which zoxide
+          register: zoxide_check
+          failed_when: false
+          changed_when: false
+          check_mode: no
+
+        - name: Install zoxide
+          when: zoxide_check.rc != 0
+          shell: curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+          args:
+            creates: "{{ home_dir }}/.local/bin/zoxide"
 
     # ============================================================================
     # Linux: Git Credential Manager
@@ -363,6 +439,7 @@
           register: gcm_check
           failed_when: false
           changed_when: false
+          check_mode: no
 
         - name: Download GCM package
           when: gcm_check.rc != 0
@@ -375,6 +452,32 @@
           become: yes
           apt:
             deb: /tmp/gcm-linux_amd64.2.6.0.deb
+
+    # ============================================================================
+    # Linux: Bitwarden Password Manager
+    # ============================================================================
+    - name: Install Bitwarden desktop app (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if Bitwarden is installed
+          command: which bitwarden
+          register: bitwarden_check
+          failed_when: false
+          changed_when: false
+          check_mode: no
+
+        - name: Download Bitwarden .deb package
+          when: bitwarden_check.rc != 0
+          shell: wget -O /tmp/bitwarden-amd64.deb "https://vault.bitwarden.com/download/?app=desktop&platform=linux&variant=deb"
+          args:
+            creates: /tmp/bitwarden-amd64.deb
+          check_mode: no
+
+        - name: Install Bitwarden package
+          when: bitwarden_check.rc != 0
+          become: yes
+          apt:
+            deb: /tmp/bitwarden-amd64.deb
 
     # ============================================================================
     # Cross-platform: Cloudflared SSH Configuration
@@ -415,7 +518,7 @@
           shell: |
             for config in .zshrc .bashrc .gitconfig .fzf.zsh .profile; do
               if [ -f {{ home_dir }}/$config ] && [ ! -L {{ home_dir }}/$config ]; then
-                mv {{ home_dir }}/$config {{ home_dir }}/$config.backup.{{ backup_timestamp }}
+                cp {{ home_dir }}/$config {{ home_dir }}/$config.backup.{{ backup_timestamp }}
                 echo "Backed up $config"
               fi
             done
@@ -425,7 +528,7 @@
     - name: Stow dotfiles packages
       shell: |
         cd {{ dotfiles_dir }}
-        for package in zsh git nvim starship tmux ghostty; do
+        for package in bash zsh git nvim starship tmux ghostty; do
           if [ -d "$package" ]; then
             {% if force_config | bool %}
             stow --restow "$package" 2>&1 || echo "Warning: Issues with $package"
@@ -456,6 +559,13 @@
         done
       register: stow_macos_result
       changed_when: "'Stowed' in stow_macos_result.stdout"
+
+    - name: Clean up old backup files
+      when: force_config | bool and stow_result is succeeded
+      shell: |
+        find {{ home_dir }} -maxdepth 1 -type f -name "*.backup.*" -not -name "*.backup.{{ backup_timestamp }}" -delete
+      register: cleanup_result
+      changed_when: cleanup_result.rc == 0
 
     - name: Configure keyd (Linux)
       when: ansible_os_family == "Debian"
