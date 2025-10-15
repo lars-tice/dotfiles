@@ -1,0 +1,76 @@
+# ~/.bashrc.local.example
+#
+# This file provides a template for machine-specific bash configuration.
+# Copy this file to ~/.bashrc.local and customize for each machine.
+#
+# IMPORTANT: ~/.bashrc.local should NEVER be committed to git!
+#            It contains secrets and machine-specific configuration.
+#
+# Usage:
+#   cp ~/dotfiles/bash/.bashrc.local.example ~/.bashrc.local
+#   edit ~/.bashrc.local  # Add your secrets and machine-specific config
+#
+
+# ============================================================================
+# API Keys and Secrets
+# ============================================================================
+# NEVER commit these to git!
+
+# Azure Storage
+# export AZURE_STORAGE_ACCESS_KEY="your-storage-access-key-here"
+
+# Azure DevOps Personal Access Token
+# export AZURE_DEVOPS_PAT="your-ado-pat-here"
+
+# GitHub Personal Access Token
+# export GITHUB_PAT="your-github-pat-here"
+# export GITHUB_TOKEN="your-github-token-here"
+
+# Neo4j Database Credentials
+# export NEO4J_URL="neo4j://localhost:7687"
+# export NEO4J_USERNAME="neo4j"
+# export NEO4J_PASSWORD="your-neo4j-password-here"
+
+# Anthropic API Configuration
+# export ANTHROPIC_BETAS="context-management-2025-06-27"
+# export ANTHROPIC_BETAS="context-1m-2025-08-07,context-management-2025-06-27"
+
+# ============================================================================
+# Machine-Specific PATH Additions
+# ============================================================================
+
+# SQL Server tools (if installed)
+# export PATH="$PATH:/opt/mssql-tools18/bin"
+
+# Go binaries (if Go is installed)
+# if command -v go &>/dev/null; then
+#   export PATH="$PATH:$(go env GOPATH)/bin"
+# fi
+
+# Cloudflare CLI (if installed)
+# export PATH="$HOME/.local/bin:/usr/lib/node_modules/cloudflare-cli/bin:$PATH"
+
+# ============================================================================
+# Terraform Configuration
+# ============================================================================
+
+# Dynamically set Azure subscription ID from azureProfile.json
+# if [ -f "$HOME/.azure/azureProfile.json" ] && command -v jq &>/dev/null; then
+#   export TF_VAR_arm_subscription_id=$(cat "$HOME/.azure/azureProfile.json" | jq -r '.subscriptions[] | select(.isDefault == true) | .id')
+# fi
+
+# ============================================================================
+# Custom Machine-Specific Aliases
+# ============================================================================
+
+# Example: SSH shortcuts
+# alias myserver='ssh user@server.com'
+
+# Example: Project shortcuts
+# alias myproject='cd ~/projects/myproject'
+
+# ============================================================================
+# Additional Machine-Specific Configuration
+# ============================================================================
+
+# Add any other machine-specific environment variables, aliases, or functions here

@@ -69,3 +69,5 @@ if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$VSCODE_INJECTION" ] 
     # Attach to existing session named 'main' or create it
     exec tmux new-session -A -s main
 fi
+
+. "$HOME/.atuin/bin/env"

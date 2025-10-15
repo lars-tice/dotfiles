@@ -138,6 +138,42 @@
         state: present
 
     # ============================================================================
+    # macOS: nvm (Node Version Manager)
+    # ============================================================================
+    - name: Install nvm (macOS)
+      when: ansible_os_family == "Darwin"
+      block:
+        - name: Check if nvm is installed
+          stat:
+            path: "{{ home_dir }}/.config/nvm/nvm.sh"
+          register: nvm_check
+
+        - name: Install nvm
+          when: not nvm_check.stat.exists
+          shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | NVM_DIR="{{ home_dir }}/.config/nvm" bash
+          args:
+            creates: "{{ home_dir }}/.config/nvm/nvm.sh"
+
+    # ============================================================================
+    # macOS: Rust/Cargo
+    # ============================================================================
+    - name: Install Rust via rustup (macOS)
+      when: ansible_os_family == "Darwin"
+      block:
+        - name: Check if Rust is installed
+          command: which rustc
+          register: rust_check
+          failed_when: false
+          changed_when: false
+          check_mode: no
+
+        - name: Install Rust
+          when: rust_check.rc != 0
+          shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          args:
+            creates: "{{ home_dir }}/.cargo/bin/rustc"
+
+    # ============================================================================
     # Linux: Core Tools
     # ============================================================================
     - name: Update apt cache (Linux)
@@ -499,6 +535,42 @@
           become: yes
           apt:
             deb: /tmp/bitwarden-amd64.deb
+
+    # ============================================================================
+    # Linux: nvm (Node Version Manager)
+    # ============================================================================
+    - name: Install nvm (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if nvm is installed
+          stat:
+            path: "{{ home_dir }}/.config/nvm/nvm.sh"
+          register: nvm_check
+
+        - name: Install nvm
+          when: not nvm_check.stat.exists
+          shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | NVM_DIR="{{ home_dir }}/.config/nvm" bash
+          args:
+            creates: "{{ home_dir }}/.config/nvm/nvm.sh"
+
+    # ============================================================================
+    # Linux: Rust/Cargo
+    # ============================================================================
+    - name: Install Rust via rustup (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if Rust is installed
+          command: which rustc
+          register: rust_check
+          failed_when: false
+          changed_when: false
+          check_mode: no
+
+        - name: Install Rust
+          when: rust_check.rc != 0
+          shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          args:
+            creates: "{{ home_dir }}/.cargo/bin/rustc"
 
     # ============================================================================
     # Cross-platform: Cloudflared SSH Configuration
