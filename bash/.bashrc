@@ -172,7 +172,7 @@ export BAT_THEME="tokyonight_night"
 # eza (Better ls)
 # ============================================================================
 alias ls='eza --icons'
-alias lsa='eza -lsa --icons'
+alias lsa='eza -la --icons'
 alias lt='eza --tree --icons'
 alias ld='eza -1D --icons'
 
