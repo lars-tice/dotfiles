@@ -183,6 +183,35 @@
             creates: "{{ home_dir }}/.config/nvm/nvm.sh"
 
     # ============================================================================
+    # macOS: Node.js via nvm
+    # ============================================================================
+    - name: Install Node.js 22 LTS via nvm (macOS)
+      when: ansible_os_family == "Darwin"
+      block:
+        - name: Check if Node.js is already installed via nvm
+          shell: |
+            export NVM_DIR="{{ home_dir }}/.config/nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm list | grep -q "v22" && echo "installed" || echo "not_installed"
+          args:
+            executable: /bin/bash
+          register: node_check
+          changed_when: false
+          failed_when: false
+          check_mode: no
+
+        - name: Install Node.js 22 LTS via nvm
+          when: node_check.stdout != "installed"
+          shell: |
+            export NVM_DIR="{{ home_dir }}/.config/nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install 22 --lts
+            nvm use 22
+            nvm alias default 22
+          args:
+            executable: /bin/bash
+
+    # ============================================================================
     # macOS: Rust/Cargo
     # ============================================================================
     - name: Install Rust via rustup (macOS)
@@ -673,6 +702,35 @@
           shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | NVM_DIR="{{ home_dir }}/.config/nvm" bash
           args:
             creates: "{{ home_dir }}/.config/nvm/nvm.sh"
+
+    # ============================================================================
+    # Linux: Node.js via nvm
+    # ============================================================================
+    - name: Install Node.js 22 LTS via nvm (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if Node.js is already installed via nvm
+          shell: |
+            export NVM_DIR="{{ home_dir }}/.config/nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm list | grep -q "v22" && echo "installed" || echo "not_installed"
+          args:
+            executable: /bin/bash
+          register: node_check
+          changed_when: false
+          failed_when: false
+          check_mode: no
+
+        - name: Install Node.js 22 LTS via nvm
+          when: node_check.stdout != "installed"
+          shell: |
+            export NVM_DIR="{{ home_dir }}/.config/nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install 22 --lts
+            nvm use 22
+            nvm alias default 22
+          args:
+            executable: /bin/bash
 
     # ============================================================================
     # Linux: Rust/Cargo
