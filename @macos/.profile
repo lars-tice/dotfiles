@@ -7,8 +7,7 @@ elif [ -f /usr/local/bin/brew ]; then
     eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# macOS clipboard integration for applications
-export CLIP_CMD="pbcopy"
+# macOS clipboard integration now handled by terminal OSC 52 escape sequences
 
 # macOS specific paths
 export PATH="/usr/local/sbin:$PATH"

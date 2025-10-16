@@ -171,7 +171,6 @@ This setup uses a **Python-free approach** for dependency management:
 #### Linux Only
 - **Ghostty**: Modern terminal emulator (via .deb package)
 - **keyd**: System-wide keyboard remapping daemon
-- **xclip**: X11 clipboard integration
 - **JetBrains Mono Nerd Font**: Programming font with icons (via direct download)
 - **Git Credential Manager**: For Azure DevOps authentication
 

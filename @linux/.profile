@@ -10,6 +10,5 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
 
-# Linux clipboard integration for applications
-export CLIP_CMD="xclip -selection clipboard"
+# Linux clipboard integration now handled by terminal OSC 52 escape sequences
 . "$HOME/.atuin/bin/env"

@@ -93,13 +93,8 @@ elif [ "$PLATFORM" = "linux" ]; then
         fi
     done
     
-    # Clipboard integration
-    echo "📦 Installing clipboard integration..."
-    if ! dpkg -l | grep -q "^ii  xclip "; then
-        sudo apt install -y xclip
-    else
-        echo "✓ xclip already installed"
-    fi
+    # Clipboard integration now handled by terminal OSC 52 escape sequences
+    echo "✓ Clipboard integration via terminal OSC 52"
     
     # Development tools (install what's available)
     echo "📦 Installing development tools..."
