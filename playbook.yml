@@ -218,7 +218,6 @@
         name:
           - git
           - stow
-          - neovim
           - xclip  # Clipboard integration
         state: present
 
@@ -275,6 +274,65 @@
           - curl
           - wget
         state: present
+
+    # ============================================================================
+    # Linux: Neovim (Stable from GitHub)
+    # ============================================================================
+    - name: Install Neovim stable (Linux)
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Check if Neovim v0.11.4 is already installed
+          shell: |
+            if [ -f {{ home_dir }}/.local/bin/nvim ]; then
+              {{ home_dir }}/.local/bin/nvim --version | head -1 | grep -q "v0.11.4" && echo "installed" || echo "different_version"
+            else
+              echo "not_installed"
+            fi
+          register: nvim_check
+          changed_when: false
+          check_mode: no
+
+        - name: Create ~/.local directory
+          when: nvim_check.stdout != "installed"
+          file:
+            path: "{{ home_dir }}/.local"
+            state: directory
+            mode: '0755'
+
+        - name: Download Neovim v0.11.4 tarball
+          when: nvim_check.stdout != "installed"
+          shell: curl -Lo /tmp/nvim-linux-x86_64.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.4/nvim-linux-x86_64.tar.gz
+          args:
+            creates: /tmp/nvim-linux-x86_64.tar.gz
+
+        - name: Remove old Neovim installation if different version
+          when: nvim_check.stdout == "different_version"
+          file:
+            path: "{{ home_dir }}/.local/nvim-linux-x86_64"
+            state: absent
+
+        - name: Extract Neovim to ~/.local
+          when: nvim_check.stdout != "installed"
+          unarchive:
+            src: /tmp/nvim-linux-x86_64.tar.gz
+            dest: "{{ home_dir }}/.local"
+            remote_src: yes
+
+        - name: Create symlinks for Neovim binaries
+          when: nvim_check.stdout != "installed"
+          file:
+            src: "{{ home_dir }}/.local/nvim-linux-x86_64/bin/{{ item }}"
+            dest: "{{ home_dir }}/.local/bin/{{ item }}"
+            state: link
+            force: yes
+          loop:
+            - nvim
+
+        - name: Clean up Neovim tarball
+          when: nvim_check.stdout != "installed"
+          file:
+            path: /tmp/nvim-linux-x86_64.tar.gz
+            state: absent
 
     # ============================================================================
     # Linux: Ghostty Terminal

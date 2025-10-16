@@ -47,6 +47,14 @@ shopt -s checkwinsize
 export XDG_CONFIG_HOME="$HOME/.config"
 
 # ============================================================================
+# Local Binaries PATH
+# ============================================================================
+# Add ~/.local/bin to PATH for user-installed tools (nvim, zoxide, starship, etc.)
+if [ -d "$HOME/.local/bin" ]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# ============================================================================
 # Prompt Configuration
 # ============================================================================
 # Make less more friendly for non-text input files

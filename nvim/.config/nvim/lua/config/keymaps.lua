@@ -18,6 +18,6 @@ vim.keymap.set("n", "<leader>E", function()
   
   -- If not open, open it
   if not explorer_open then
-    Snacks.picker.explorer()
+    Snacks.explorer()
   end
 end, { desc = "Toggle Snacks Explorer" })
