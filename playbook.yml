@@ -219,6 +219,7 @@
           - git
           - stow
           - neovim
+          - xclip  # Clipboard integration for tmux
         state: present
 
     # ============================================================================
