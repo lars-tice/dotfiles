@@ -684,7 +684,7 @@
     - name: Stow dotfiles packages
       shell: |
         cd {{ dotfiles_dir }}
-        for package in bash zsh git nvim starship tmux ghostty; do
+        for package in bash zsh git nvim starship tmux ghostty atuin bat gh; do
           if [ -d "$package" ]; then
             {% if force_config | bool %}
             stow --restow "$package" 2>&1 || echo "Warning: Issues with $package"
@@ -715,6 +715,24 @@
         done
       register: stow_macos_result
       changed_when: "'Stowed' in stow_macos_result.stdout"
+
+    - name: Stow platform-specific packages (Linux)
+      when: ansible_os_family == "Debian"
+      shell: |
+        cd {{ dotfiles_dir }}
+        for package in @linux; do
+          if [ -d "$package" ]; then
+            {% if force_config | bool %}
+            stow --restow "$package" 2>&1 || echo "Warning: Issues with $package"
+            {% else %}
+            stow --adopt "$package" 2>&1 || true
+            stow --restow "$package" 2>&1 || echo "Warning: Issues with $package"
+            {% endif %}
+            echo "Stowed $package"
+          fi
+        done
+      register: stow_linux_result
+      changed_when: "'Stowed' in stow_linux_result.stdout"
 
     - name: Clean up old backup files
       when: force_config | bool and stow_result is succeeded
