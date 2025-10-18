@@ -536,6 +536,18 @@
           args:
             creates: "{{ home_dir }}/.atuin/bin/atuin"
 
+        - name: Check if bash-preexec is installed
+          stat:
+            path: "{{ home_dir }}/.bash-preexec.sh"
+          register: bash_preexec_check
+
+        - name: Install bash-preexec for Atuin (required for bash support)
+          when: not bash_preexec_check.stat.exists
+          get_url:
+            url: https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh
+            dest: "{{ home_dir }}/.bash-preexec.sh"
+            mode: '0644'
+
     # ============================================================================
     # Linux: eza (Better ls)
     # ============================================================================
