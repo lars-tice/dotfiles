@@ -1,6 +1,6 @@
 # Local configuration files
 .zshrc.local
-*.local
+**/*.local
 
 # macOS
 .DS_Store

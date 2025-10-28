@@ -1,0 +1,17 @@
+#!/bin/bash
+# tmux-smart-attach
+# Intelligently attach to tmux sessions or create new ones
+# Prevents nested tmux sessions when launching from within tmux
+
+# If we're already inside tmux, just start a regular shell
+if [ -n "$TMUX" ]; then
+    exec "$SHELL"
+fi
+
+# Try to attach to the most recent tmux session
+# If no session exists, create a new one named "main"
+if tmux has-session 2>/dev/null; then
+    exec tmux attach-session
+else
+    exec tmux new-session -s main
+fi
