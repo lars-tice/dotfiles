@@ -3,6 +3,11 @@
 # Intelligently attach to tmux sessions or create new ones
 # Prevents nested tmux sessions when launching from within tmux
 
+# Ensure homebrew is in PATH (macOS)
+if [ -d "/opt/homebrew/bin" ]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+fi
+
 # If we're already inside tmux, just start a regular shell
 if [ -n "$TMUX" ]; then
     exec "$SHELL"
