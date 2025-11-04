@@ -37,6 +37,8 @@ copy-on-select = true
 
 # Smart tmux attach - attaches to most recent session or creates new
 # Prevents nested tmux sessions when launching Ghostty from within tmux
+# The script has built-in fallback: if tmux fails, it will launch a regular shell
+# Logs are written to ~/.local/share/ghostty/tmux-smart-attach.log for debugging
 # This will be overridden by platform-specific configs
 command = ~/.local/bin/tmux-smart-attach
 
@@ -46,6 +48,3 @@ keybind = ctrl+plus=increase_font_size:1
 keybind = ctrl+minus=decrease_font_size:1
 keybind = ctrl+0=reset_font_size
 keybind = ctrl+equal=increase_font_size:1
-
-# Open new window without tmux (for tools like Claude Code that need full scrollback)
-keybind = ctrl+shift+n=new_window:bash

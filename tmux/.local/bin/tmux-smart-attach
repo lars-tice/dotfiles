@@ -3,20 +3,49 @@
 # Intelligently attach to tmux sessions or create new ones
 # Prevents nested tmux sessions when launching from within tmux
 
+# Logging function
+LOG_FILE="${HOME}/.local/share/ghostty/tmux-smart-attach.log"
+log() {
+    mkdir -p "$(dirname "$LOG_FILE")"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"
+}
+
+log "=== tmux-smart-attach started ==="
+log "TMUX=$TMUX"
+log "SHELL=$SHELL"
+log "PATH=$PATH"
+
 # Ensure homebrew is in PATH (macOS)
 if [ -d "/opt/homebrew/bin" ]; then
     export PATH="/opt/homebrew/bin:$PATH"
+    log "Added homebrew to PATH"
 fi
+
+# Fallback to regular shell if anything fails
+fallback_shell() {
+    log "Falling back to regular shell: $SHELL"
+    exec "$SHELL"
+}
 
 # If we're already inside tmux, just start a regular shell
 if [ -n "$TMUX" ]; then
-    exec "$SHELL"
+    log "Already in tmux session, starting regular shell"
+    fallback_shell
 fi
 
 # Try to attach to the most recent tmux session
 # If no session exists, create a new one named "main"
+# If tmux is not available, fall back to regular shell
 if tmux has-session 2>/dev/null; then
+    log "Existing tmux session found, attaching..."
     exec tmux attach-session
 else
-    exec tmux new-session -s main
+    # Check if tmux exists before trying to create a session
+    if command -v tmux >/dev/null 2>&1; then
+        log "No tmux session found, creating new session 'main'..."
+        exec tmux new-session -s main
+    else
+        log "ERROR: tmux not found in PATH"
+        fallback_shell
+    fi
 fi
