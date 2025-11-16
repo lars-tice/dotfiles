@@ -248,7 +248,8 @@
           - git
           - stow
           - neovim
-          - xclip  # Clipboard integration for tmux
+          - xclip  # Clipboard integration for tmux (X11)
+          - wl-clipboard  # Clipboard integration for tmux (Wayland)
         state: present
 
     # ============================================================================
