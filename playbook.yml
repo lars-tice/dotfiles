@@ -787,6 +787,71 @@
             creates: "{{ home_dir }}/.cargo/bin/rustc"
 
     # ============================================================================
+    # Cross-platform: Shell Environment Configuration
+    # ============================================================================
+    - name: Configure shell environment sourcing
+      block:
+        - name: Check if zsh is available
+          command: which zsh
+          register: zsh_check
+          failed_when: false
+          changed_when: false
+
+        - name: Check if bash is available
+          command: which bash
+          register: bash_check
+          failed_when: false
+          changed_when: false
+
+        - name: Ensure Cargo env is sourced in .zshrc
+          when: zsh_check.rc == 0
+          lineinfile:
+            path: "{{ home_dir }}/.zshrc"
+            line: '[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"'
+            regexp: 'cargo/env'
+            create: yes
+
+        - name: Ensure Cargo env is sourced in .bashrc
+          when: bash_check.rc == 0
+          lineinfile:
+            path: "{{ home_dir }}/.bashrc"
+            line: '[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"'
+            regexp: 'cargo/env'
+            create: yes
+
+        - name: Ensure nvm is sourced in .zshrc
+          when: zsh_check.rc == 0
+          lineinfile:
+            path: "{{ home_dir }}/.zshrc"
+            line: 'export NVM_DIR="$HOME/.config/nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
+            regexp: 'NVM_DIR.*nvm\.sh'
+            create: yes
+
+        - name: Ensure nvm is sourced in .bashrc
+          when: bash_check.rc == 0
+          lineinfile:
+            path: "{{ home_dir }}/.bashrc"
+            line: 'export NVM_DIR="$HOME/.config/nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
+            regexp: 'NVM_DIR.*nvm\.sh'
+            create: yes
+
+        - name: Ensure atuin env is sourced in .zshrc
+          when: zsh_check.rc == 0
+          lineinfile:
+            path: "{{ home_dir }}/.zshrc"
+            line: '[ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"'
+            regexp: 'atuin/bin/env'
+            create: yes
+
+        - name: Ensure atuin env is sourced in .bashrc
+          when: bash_check.rc == 0
+          lineinfile:
+            path: "{{ home_dir }}/.bashrc"
+            line: '[ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"'
+            regexp: 'atuin/bin/env'
+            create: yes
+
+    # ============================================================================
     # Cross-platform: Cloudflared SSH Configuration
     # ============================================================================
     - name: Configure cloudflared SSH access
