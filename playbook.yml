@@ -8,6 +8,8 @@
     home_dir: "{{ ansible_env.HOME }}"
     dotfiles_dir: "{{ home_dir }}/dotfiles"
     cloudflared_ssh_hostname: "{{ lookup('env', 'CLOUDFLARED_SSH_HOSTNAME') | default('', true) }}"
+    # Homebrew prefix: /opt/homebrew on Apple Silicon, /usr/local on Intel
+    brew_prefix: "{{ '/opt/homebrew' if ansible_machine == 'arm64' else '/usr/local' }}"
 
   tasks:
     # ============================================================================
@@ -91,7 +93,7 @@
 
     - name: Install fzf shell integration (macOS)
       when: ansible_os_family == "Darwin"
-      shell: $(brew --prefix)/opt/fzf/install --all --no-bash --no-fish --no-update-rc
+      shell: "{{ brew_prefix }}/opt/fzf/install --all --no-bash --no-fish --no-update-rc"
       args:
         creates: "{{ home_dir }}/.fzf.zsh"
 
@@ -118,20 +120,20 @@
       block:
         - name: Check if Tokyo Night themes are installed
           stat:
-            path: "$(brew --prefix)/etc/bat/themes/tokyonight.nvim"
+            path: "{{ brew_prefix }}/etc/bat/themes/tokyonight.nvim"
           register: bat_themes_check
 
         - name: Create bat themes directory
           when: not bat_themes_check.stat.exists
           file:
-            path: "$(brew --prefix)/etc/bat/themes"
+            path: "{{ brew_prefix }}/etc/bat/themes"
             state: directory
 
         - name: Clone Tokyo Night themes
           when: not bat_themes_check.stat.exists
           git:
             repo: https://github.com/folke/tokyonight.nvim.git
-            dest: "$(brew --prefix)/etc/bat/themes/tokyonight.nvim"
+            dest: "{{ brew_prefix }}/etc/bat/themes/tokyonight.nvim"
             depth: 1
 
         - name: Build bat cache
