@@ -11,3 +11,4 @@ fi
 
 # macOS specific paths
 export PATH="/usr/local/sbin:$PATH"
+. "$HOME/.cargo/env"

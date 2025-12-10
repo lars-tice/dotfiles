@@ -61,10 +61,16 @@
     # ============================================================================
     # macOS: Cloudflared Tunnel
     # ============================================================================
+    - name: Add Cloudflare tap (macOS)
+      when: ansible_os_family == "Darwin"
+      community.general.homebrew_tap:
+        name: cloudflare/cloudflare
+        state: present
+
     - name: Install cloudflared (macOS)
       when: ansible_os_family == "Darwin"
       community.general.homebrew:
-        name: cloudflare/cloudflare/cloudflared
+        name: cloudflared
         state: present
 
     # ============================================================================
@@ -175,6 +181,13 @@
           stat:
             path: "{{ home_dir }}/.config/nvm/nvm.sh"
           register: nvm_check
+
+        - name: Create nvm directory
+          when: not nvm_check.stat.exists
+          file:
+            path: "{{ home_dir }}/.config/nvm"
+            state: directory
+            mode: '0755'
 
         - name: Install nvm
           when: not nvm_check.stat.exists
@@ -709,6 +722,13 @@
           stat:
             path: "{{ home_dir }}/.config/nvm/nvm.sh"
           register: nvm_check
+
+        - name: Create nvm directory
+          when: not nvm_check.stat.exists
+          file:
+            path: "{{ home_dir }}/.config/nvm"
+            state: directory
+            mode: '0755'
 
         - name: Install nvm
           when: not nvm_check.stat.exists
