@@ -8,7 +8,7 @@ theme = tokyonight
 
 # Font Configuration
 # Using JetBrains Mono Nerd Font for icons and glyphs
-font-family = JetBrainsMonoNerdFontMono-Regular
+font-family = JetBrainsMono Nerd Font Mono
 font-size = 14
 
 # Window Configuration
@@ -52,3 +52,4 @@ keybind = ctrl+plus=increase_font_size:1
 keybind = ctrl+minus=decrease_font_size:1
 keybind = ctrl+0=reset_font_size
 keybind = ctrl+equal=increase_font_size:1
+keybind = shift+enter=text:\x1b\r
