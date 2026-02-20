@@ -327,10 +327,10 @@
     - name: Install Neovim stable (Linux)
       when: ansible_os_family == "Debian"
       block:
-        - name: Check if Neovim v0.11.4 is already installed
+        - name: Check if Neovim v0.11.5 is already installed
           shell: |
             if [ -f {{ home_dir }}/.local/bin/nvim ]; then
-              {{ home_dir }}/.local/bin/nvim --version | head -1 | grep -q "v0.11.4" && echo "installed" || echo "different_version"
+              {{ home_dir }}/.local/bin/nvim --version | head -1 | grep -q "v0.11.5" && echo "installed" || echo "different_version"
             else
               echo "not_installed"
             fi
@@ -345,9 +345,9 @@
             state: directory
             mode: '0755'
 
-        - name: Download Neovim v0.11.4 tarball
+        - name: Download Neovim v0.11.5 tarball
           when: nvim_check.stdout != "installed"
-          shell: curl -Lo /tmp/nvim-linux-x86_64.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.4/nvim-linux-x86_64.tar.gz
+          shell: curl -Lo /tmp/nvim-linux-x86_64.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-linux-x86_64.tar.gz
           args:
             creates: /tmp/nvim-linux-x86_64.tar.gz
 
