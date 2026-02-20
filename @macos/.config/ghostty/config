@@ -37,8 +37,8 @@ copy-on-select = true
 
 # Smart tmux attach - attaches to most recent session or creates new
 # Prevents nested tmux sessions when launching Ghostty from within tmux
-# On macOS, use shell-integration-features and set tmux as the shell in .zshrc/.bashrc
-# command = ~/.local/bin/tmux-smart-attach
+# Using Ghostty command (not .zshrc) so that apps opened via terminal don't hijack tmux
+command = ~/.local/bin/tmux-smart-attach
 
 # macOS keybindings (Cmd key)
 keybind = cmd+plus=increase_font_size:1

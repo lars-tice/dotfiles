@@ -65,8 +65,15 @@ zi() {
 }
 
 # Auto-start tmux when opening terminal
-if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$VSCODE_INJECTION" ] && [[ $- == *i* ]]; then
-    # Attach to existing session named 'main' or create it
+# On Ghostty, tmux is handled via Ghostty's command config to avoid hijacking
+# app launches that open a terminal (e.g. Anki launcher)
+# This fallback handles non-Ghostty terminals only
+if command -v tmux &> /dev/null \
+    && [ -z "$TMUX" ] \
+    && [ -z "$VSCODE_INJECTION" ] \
+    && [[ $- == *i* ]] \
+    && [[ -t 0 ]] \
+    && [[ "$TERM_PROGRAM" != "ghostty" ]]; then
     exec tmux new-session -A -s main
 fi
 
