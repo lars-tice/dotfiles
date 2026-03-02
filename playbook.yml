@@ -317,9 +317,87 @@
           - fzf
           - bat
           - tmux
-          - curl
           - wget
+          - build-essential
         state: present
+
+    # ============================================================================
+    # Linux: curl 8.18.0 (build from source — apt version has HTTP/2 bugs)
+    # ============================================================================
+    - name: Install curl 8.18.0 from source (Linux)
+      when: ansible_os_family == "Debian"
+      become: yes
+      block:
+        - name: Check if curl 8.18.0 is already installed
+          shell: |
+            if [ -f /usr/local/bin/curl ]; then
+              /usr/local/bin/curl --version | head -1 | grep -q "8.18.0" && echo "installed" || echo "different_version"
+            else
+              echo "not_installed"
+            fi
+          register: curl_check
+          changed_when: false
+          check_mode: no
+
+        - name: Install curl build dependencies
+          when: curl_check.stdout != "installed"
+          apt:
+            name:
+              - nghttp2
+              - libnghttp2-dev
+              - libssl-dev
+              - libpsl-dev
+            state: present
+
+        - name: Remove apt-managed curl
+          when: curl_check.stdout != "installed"
+          apt:
+            name: curl
+            state: absent
+
+        - name: Download curl 8.18.0 source tarball
+          when: curl_check.stdout != "installed"
+          shell: wget -q -O /tmp/curl-8.18.0.tar.xz https://curl.se/download/curl-8.18.0.tar.xz
+          args:
+            creates: /tmp/curl-8.18.0.tar.xz
+
+        - name: Extract curl source
+          when: curl_check.stdout != "installed"
+          unarchive:
+            src: /tmp/curl-8.18.0.tar.xz
+            dest: /tmp
+            remote_src: yes
+
+        - name: Configure curl build
+          when: curl_check.stdout != "installed"
+          shell: ./configure --prefix=/usr/local --with-ssl --with-nghttp2 --enable-versioned-symbols --silent
+          args:
+            chdir: /tmp/curl-8.18.0
+
+        - name: Build curl
+          when: curl_check.stdout != "installed"
+          shell: make -j{{ ansible_processor_nproc }}
+          args:
+            chdir: /tmp/curl-8.18.0
+
+        - name: Install curl to /usr/local
+          when: curl_check.stdout != "installed"
+          shell: make install
+          args:
+            chdir: /tmp/curl-8.18.0
+
+        - name: Update shared library cache
+          when: curl_check.stdout != "installed"
+          shell: ldconfig
+
+        - name: Clean up curl build directory
+          when: curl_check.stdout != "installed"
+          file:
+            path: "{{ item }}"
+            state: absent
+          loop:
+            - /tmp/curl-8.18.0
+            - /tmp/curl-8.18.0.tar.xz
 
     # ============================================================================
     # Linux: Neovim (Stable from GitHub)
@@ -565,50 +643,58 @@
             mode: '0644'
 
     # ============================================================================
-    # Linux: eza (Better ls)
+    # Linux: eza (Better ls — GitHub release binary)
     # ============================================================================
-    - name: Install eza (Linux)
+    - name: Install eza v0.23.4 (Linux)
       when: ansible_os_family == "Debian"
+      become: yes
       block:
-        - name: Check if eza is installed
-          command: which eza
+        - name: Check if eza v0.23.4 is already installed
+          shell: |
+            if [ -f /usr/local/bin/eza ]; then
+              /usr/local/bin/eza --version | grep -q "0.23.4" && echo "installed" || echo "different_version"
+            else
+              echo "not_installed"
+            fi
           register: eza_check
-          failed_when: false
           changed_when: false
           check_mode: no
 
-        - name: Ensure GPG keyrings directory exists
-          when: eza_check.rc != 0
-          become: yes
+        - name: Remove stale gierens apt repo and key
+          when: eza_check.stdout != "installed"
           file:
-            path: /etc/apt/keyrings
-            state: directory
+            path: "{{ item }}"
+            state: absent
+          loop:
+            - /etc/apt/sources.list.d/gierens.list
+            - /etc/apt/keyrings/gierens.gpg
+
+        - name: Download eza v0.23.4 tarball
+          when: eza_check.stdout != "installed"
+          get_url:
+            url: https://github.com/eza-community/eza/releases/download/v0.23.4/eza_x86_64-unknown-linux-gnu.tar.gz
+            dest: /tmp/eza_x86_64-unknown-linux-gnu.tar.gz
+
+        - name: Extract eza binary
+          when: eza_check.stdout != "installed"
+          unarchive:
+            src: /tmp/eza_x86_64-unknown-linux-gnu.tar.gz
+            dest: /tmp
+            remote_src: yes
+
+        - name: Install eza to /usr/local/bin
+          when: eza_check.stdout != "installed"
+          copy:
+            src: /tmp/eza
+            dest: /usr/local/bin/eza
             mode: '0755'
+            remote_src: yes
 
-        - name: Add eza repository GPG key
-          when: eza_check.rc != 0
-          become: yes
-          shell: |
-            wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-            chmod 644 /etc/apt/keyrings/gierens.gpg
-          args:
-            creates: /etc/apt/keyrings/gierens.gpg
-
-        - name: Add eza repository
-          when: eza_check.rc != 0
-          become: yes
-          apt_repository:
-            repo: "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main"
-            filename: gierens
-            state: present
-
-        - name: Install eza
-          when: eza_check.rc != 0
-          become: yes
-          apt:
-            name: eza
-            update_cache: yes
-            state: present
+        - name: Clean up eza tarball
+          when: eza_check.stdout != "installed"
+          file:
+            path: /tmp/eza_x86_64-unknown-linux-gnu.tar.gz
+            state: absent
 
     # ============================================================================
     # Linux: zoxide (Smarter cd)
