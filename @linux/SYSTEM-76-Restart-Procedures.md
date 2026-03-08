@@ -111,6 +111,87 @@ sudo shutdown -h now
 # from a warm reboot.
 ```
 
+## Post-Reboot Diagnostic & Escalation Guide
+
+After rebooting, if the display has no signal, SSH in and follow this escalation
+path. Each step builds on the previous — only escalate if the current step
+doesn't restore the display.
+
+### Step 1: Diagnose
+
+```bash
+ssh ssh.firstovertheline.com
+
+# Check overall system health
+systemctl is-system-running
+
+# Check display manager state
+systemctl status gdm3
+
+# Check NVIDIA driver state
+nvidia-smi
+```
+
+**How to read the results:**
+
+| `systemctl status gdm3` | `nvidia-smi` | Diagnosis | Go to |
+|--------------------------|--------------|-----------|-------|
+| active (running) | shows GPU info | Framebuffer handoff glitch — GDM is fine, GPU is fine, display just didn't connect | Step 2 |
+| active (running) | error / not found | NVIDIA kernel modules failed to load or are in a bad state | Step 3 |
+| failed / inactive | any | GDM itself didn't start | Step 2, then Step 3 if unresolved |
+
+### Step 2: Restart GDM
+
+GDM is running but the framebuffer handoff glitched. Restarting GDM re-triggers
+the display pipeline handoff, which often succeeds on a second attempt.
+
+```bash
+sudo systemctl restart gdm3
+```
+
+Check the monitor. If the display is back, you're done. If not, proceed to
+Step 3.
+
+### Step 3: Reload the NVIDIA driver stack
+
+The NVIDIA kernel modules are in a bad state. Fully unload them, reload the
+base module, then restart GDM.
+
+```bash
+# Unload all NVIDIA kernel modules (order matters — dependents first)
+sudo rmmod nvidia_drm nvidia_modeset nvidia_uvm nvidia
+
+# Reload the base module (dependents are pulled in automatically)
+sudo modprobe nvidia
+
+# Restart GDM with fresh driver state
+sudo systemctl restart gdm3
+```
+
+Check the monitor. If the display is back, you're done. If not, proceed to
+Step 4.
+
+### Step 4: Clean reboot
+
+```bash
+sudo reboot
+```
+
+Wait ~2 minutes for services to start, then SSH back in and repeat from Step 1.
+A second clean reboot typically resolves the framebuffer handoff.
+
+### Step 5: Cold shutdown (last resort)
+
+If a second reboot still doesn't restore the display, a full power cycle resets
+GPU firmware state, which is different from a warm reboot.
+
+```bash
+sudo shutdown -h now
+# Wait 30 seconds after power LED goes off, then power on.
+```
+
+Wait ~2 minutes, SSH in, and repeat from Step 1.
+
 ## Why This Happens
 
 The NVIDIA out-of-tree kernel module uses DKMS to rebuild against each new kernel. During boot, the display pipeline transitions from an early `simple-framebuffer` to the NVIDIA DRM driver. This handoff is timing-sensitive and can fail silently on newer kernels (especially major version jumps like 6.17 → 6.18), leaving the GPU initialized but not producing output to the display.
