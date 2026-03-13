@@ -474,14 +474,14 @@
         - name: Download Ghostty package
           when: ghostty_check.rc != 0
           get_url:
-            url: https://github.com/mkasberg/ghostty-ubuntu/releases/download/1.1.3-0-ppa2/ghostty_1.1.3-0.ppa2_amd64_24.04.deb
-            dest: /tmp/ghostty_1.1.3-0.ppa2_amd64_24.04.deb
+            url: https://github.com/mkasberg/ghostty-ubuntu/releases/download/1.3.0-0-ppa1/ghostty_1.3.0-0.ppa1_amd64_24.04.deb
+            dest: /tmp/ghostty_1.3.0-0.ppa1_amd64_24.04.deb
 
         - name: Install Ghostty package
           when: ghostty_check.rc != 0
           become: yes
           apt:
-            deb: /tmp/ghostty_1.1.3-0.ppa2_amd64_24.04.deb
+            deb: /tmp/ghostty_1.3.0-0.ppa1_amd64_24.04.deb
 
         - name: Set Ghostty as default terminal
           become: yes
@@ -927,6 +927,14 @@
             path: "{{ home_dir }}/.zshrc"
             line: '[ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"'
             regexp: 'atuin/bin/env'
+            create: yes
+
+        - name: Add ~/.local/bin to PATH in .zshrc
+          when: zsh_check.rc == 0
+          lineinfile:
+            path: "{{ home_dir }}/.zshrc"
+            line: '[ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"'
+            regexp: '\.local/bin.*PATH'
             create: yes
 
         - name: Ensure atuin env is sourced in .bashrc
