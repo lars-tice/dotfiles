@@ -1,0 +1,46 @@
+# ==========================================================================
+# Cloudflare Tunnel: a4c-k3s-tunnel  —  REFERENCE MIRROR
+# ==========================================================================
+# This file is NOT loaded by cloudflared. It mirrors the authoritative
+# config that lives in Cloudflare's control plane (dashboard-managed).
+# To edit the live config: see README.md.
+# Regenerate this file with: ./sync-from-api.sh
+#
+# Last synced:        2026-04-21
+# API config version: 28
+# Source:             cloudflare
+# ==========================================================================
+
+tunnel: a4c-k3s-tunnel
+
+ingress:
+
+  - hostname: ssh.firstovertheline.com
+    service: ssh://192.168.122.1:22
+
+  - hostname: k8s.firstovertheline.com
+    service: https://192.168.122.42:6443
+    originRequest:
+      noTLSVerify: true
+
+  - hostname: api-a4c.firstovertheline.com
+    service: http://192.168.122.42:80
+    originRequest:
+      httpHostHeader: api-a4c.firstovertheline.com
+
+  - hostname: a4c.firstovertheline.com
+    service: http://192.168.122.42:80
+    originRequest:
+      httpHostHeader: a4c.firstovertheline.com
+
+  - hostname: media.firstovertheline.com
+    service: http://192.168.2.100:30013
+
+  - hostname: requests.firstovertheline.com
+    service: http://192.168.2.100:30357
+
+  - hostname: "*.firstovertheline.com"
+    service: http://192.168.122.42:80
+
+  # Catch-all
+  - service: http_status:404

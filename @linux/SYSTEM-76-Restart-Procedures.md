@@ -194,15 +194,52 @@ Wait ~2 minutes, SSH in, and repeat from Step 1.
 
 ## Why This Happens
 
-The NVIDIA out-of-tree kernel module uses DKMS to rebuild against each new kernel. During boot, the display pipeline transitions from an early `simple-framebuffer` to the NVIDIA DRM driver. This handoff is timing-sensitive and can fail silently on newer kernels (especially major version jumps like 6.17 → 6.18), leaving the GPU initialized but not producing output to the display.
+There are two known variants of the no-display-signal issue. Both leave the
+system fully functional — GDM starts, services run — the monitor just has no
+signal.
 
-The system itself is fully functional — GDM starts, services run, the login greeter loads — the monitor just has no signal.
+### Variant 1: simpledrm → nvidia-drm handoff failure
+
+The NVIDIA out-of-tree kernel module uses DKMS to rebuild against each new
+kernel. During boot, the display pipeline transitions from an early
+`simple-framebuffer` to the NVIDIA DRM driver. This handoff is timing-sensitive
+and can fail silently on newer kernels (especially major version jumps like
+6.17 → 6.18), leaving the GPU initialized but not producing output to the
+display.
+
+### Variant 2: GDM X11 greeter → Wayland session handoff delay
+
+Even when the NVIDIA driver loads successfully, the GDM greeter runs an X11
+session that sets the display mode (e.g., `DFP-2:nvidia-auto-select`) but may
+not produce a visible signal on the monitor. The display appears blank until the
+user's Wayland session starts (gnome-shell with atomic mode setting), which can
+take **3+ minutes** after boot.
+
+Observed boot timeline (2026-03-08):
+
+| Monotonic time | Event |
+|----------------|-------|
+| 0.8s | `simpledrm` framebuffer initialized |
+| 0.8s | `fbcon: Deferring console take-over` |
+| 6.1s | nvidia-drm loading |
+| 7.9s | nvidia-drm initialized, fbcon defers take-over **again** |
+| 10.3s | GDM X11 greeter detects DELL U3225QE on DFP-2 |
+| 10.6s | NVIDIA sets mode `DFP-2:nvidia-auto-select` — **no visible signal** |
+| 11.2–11.4s | DisplayPort link re-probes DFP-2 three times (link flapping) |
+| 200.2s | gnome-shell adds nvidia-drm via **atomic mode setting** — display comes alive |
+
+In this variant, no intervention is needed — the display self-recovers once the
+Wayland session starts. The key indicator is that GDM and nvidia-smi both report
+healthy state via SSH, and the display comes back within ~3–4 minutes without
+any restart. If it doesn't self-recover by then, escalate through the
+diagnostic guide above.
 
 ## Incident History
 
 | Date       | Kernel Change              | Boots to Recovery | Notes                                    |
 |------------|----------------------------|-------------------|------------------------------------------|
 | 2026-02-21 | 6.17.9 → 6.18.7           | 3+ (2 recorded)   | NVIDIA 580.82→580.126 realignment; unrecorded boots didn't reach journald |
+| 2026-03-08 | (none — same kernel)       | 1                 | NVIDIA 580.126.09→580.126.18 driver update; Variant 2 — display blank ~3m20s while GDM X11 greeter ran, self-recovered when Wayland session started |
 
 ## SSH Infrastructure
 
