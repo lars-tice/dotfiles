@@ -132,7 +132,7 @@ This setup uses a **Python-free approach** for dependency management:
 
 #### Core Tools
 - **git**: Version control
-- **gh**: GitHub CLI (macOS via brew, Linux requires [manual install](https://cli.github.com/manual/installation))
+- **gh**: GitHub CLI (installed and kept at latest stable on both macOS and Linux by the playbook; Linux uses the official [cli.github.com/packages](https://cli.github.com/packages) apt repo)
 - **neovim**: Modern Vim-based editor
 - **stow**: Symlink farm manager for dotfiles
 
